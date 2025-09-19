@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
-import 'bus_search_results_screen.dart';
 import 'nearby_stops_screen.dart';
 import 'search_screen.dart';
+import 'bus_search_results_screen.dart';
+import '../services/app_status_service.dart';
+import '../services/city_service.dart';
+import '../services/bus_stop_service.dart';
+import '../l10n/app_localizations.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -13,9 +17,143 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final _fromController = TextEditingController();
   final _toController = TextEditingController();
+  
+  bool _isLoading = false;
+  List<String> _fromSuggestions = [];
+  List<String> _toSuggestions = [];
+  bool _showFromSuggestions = false;
+  bool _showToSuggestions = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Add listeners for autocomplete
+    _fromController.addListener(_onFromTextChanged);
+    _toController.addListener(_onToTextChanged);
+  }
+
+  void _onFromTextChanged() {
+    final text = _fromController.text;
+    if (text.isNotEmpty) {
+      _loadSuggestions(text, true);
+    } else {
+      setState(() {
+        _showFromSuggestions = false;
+      });
+    }
+  }
+
+  void _onToTextChanged() {
+    final text = _toController.text;
+    if (text.isNotEmpty) {
+      _loadSuggestions(text, false);
+    } else {
+      setState(() {
+        _showToSuggestions = false;
+      });
+    }
+  }
+
+  Future<void> _loadSuggestions(String query, bool isFrom) async {
+    if (query.length < 2) return;
+    
+    try {
+      print('Loading suggestions for query: $query');
+      // Use search APIs instead of loading all data
+      final cities = await CityService.searchCities(query);
+      final busStops = await BusStopService.searchBusStops(query);
+      
+      print('Cities found: ${cities.length}');
+      print('Bus stops found: ${busStops.length}');
+      
+      final suggestions = <String>{};
+      
+      // Add cities
+      for (final city in cities) {
+        suggestions.add(city.cityName);
+        print('Added city: ${city.cityName}');
+      }
+      
+      // Add bus stops
+      for (final stop in busStops) {
+        suggestions.add(stop.stopName);
+        print('Added stop: ${stop.stopName}');
+      }
+      
+      print('Total suggestions: ${suggestions.length}');
+      
+      if (mounted) {
+        setState(() {
+          if (isFrom) {
+            _fromSuggestions = suggestions.take(5).toList();
+            // Don't show suggestions if current text exactly matches one of them
+            _showFromSuggestions = _fromSuggestions.isNotEmpty && 
+                                   !_fromSuggestions.contains(_fromController.text);
+            print('Setting FROM suggestions: $_fromSuggestions, show: $_showFromSuggestions');
+          } else {
+            _toSuggestions = suggestions.take(5).toList();
+            // Don't show suggestions if current text exactly matches one of them
+            _showToSuggestions = _toSuggestions.isNotEmpty && 
+                                 !_toSuggestions.contains(_toController.text);
+            print('Setting TO suggestions: $_toSuggestions, show: $_showToSuggestions');
+          }
+        });
+      }
+    } catch (e) {
+      print('Error loading suggestions: $e');
+      // Silently fail, suggestions are optional
+    }
+  }
+
+  Future<void> _searchRoutes() async {
+    final from = _fromController.text.trim();
+    final to = _toController.text.trim();
+
+    if (from.isEmpty || to.isEmpty) {
+      _showError('Please enter both departure and destination');
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      if (mounted) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => BusSearchResultsScreen(
+              from: from,
+              to: to,
+              fromId: from, // For now using the same text, can be improved later
+              toId: to,
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      _showError('Failed to search routes: ${e.toString()}');
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  void _showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+      ),
+    );
+  }
 
   @override
   void dispose() {
+    _fromController.removeListener(_onFromTextChanged);
+    _toController.removeListener(_onToTextChanged);
     _fromController.dispose();
     _toController.dispose();
     super.dispose();
@@ -30,6 +168,42 @@ class _HomeScreenState extends State<HomeScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 16),
+            // Connection Status Indicator
+            FutureBuilder<bool>(
+              future: AppStatusService.checkBackendStatus(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const SizedBox.shrink();
+                }
+                
+                final isConnected = snapshot.data ?? false;
+                if (!isConnected) {
+                  return Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    margin: const EdgeInsets.only(bottom: 16),
+                    decoration: BoxDecoration(
+                      color: Colors.orange.withValues(alpha: 0.1),
+                      border: Border.all(color: Colors.orange),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.wifi_off, color: Colors.orange, size: 16),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'Limited connectivity - Some features may not work',
+                            style: TextStyle(color: Colors.orange.shade700, fontSize: 12),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+                return const SizedBox.shrink();
+              },
+            ),
             // Welcome Section
             Container(
               width: double.infinity,
@@ -56,13 +230,13 @@ class _HomeScreenState extends State<HomeScreen> {
                           size: 20,
                         ),
                       ),
-                      const SizedBox(width: 12),
-                      const Expanded(
+                      SizedBox(width: 12),
+                      Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Track My Ride',
+                              AppLocalizations.of(context)?.appTitle ?? 'Track My Ride',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 20,
@@ -131,12 +305,17 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   const SizedBox(height: 16),
                   
-                  // From Bus Stand
-                  _buildSearchField(
-                    controller: _fromController,
-                    label: 'From',
-                    icon: Icons.my_location_rounded,
-                    hint: 'Choose departure location',
+                  // From Bus Stand with Suggestions
+                  Column(
+                    children: [
+                      _buildSearchField(
+                        controller: _fromController,
+                        label: AppLocalizations.of(context)?.fromBusStand ?? 'From',
+                        icon: Icons.my_location_rounded,
+                        hint: 'Choose departure location',
+                      ),
+                      if (_showFromSuggestions) _buildSuggestionsList(_fromSuggestions, true),
+                    ],
                   ),
                   const SizedBox(height: 12),
                   
@@ -165,12 +344,17 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   const SizedBox(height: 12),
                   
-                  // To Bus Stand
-                  _buildSearchField(
-                    controller: _toController,
-                    label: 'To',
-                    icon: Icons.location_on_rounded,
-                    hint: 'Choose destination',
+                  // To Bus Stand with Suggestions
+                  Column(
+                    children: [
+                      _buildSearchField(
+                        controller: _toController,
+                        label: AppLocalizations.of(context)?.toBusStand ?? 'To',
+                        icon: Icons.location_on_rounded,
+                        hint: 'Choose destination',
+                      ),
+                      if (_showToSuggestions) _buildSuggestionsList(_toSuggestions, false),
+                    ],
                   ),
                   const SizedBox(height: 16),
                   
@@ -178,34 +362,36 @@ class _HomeScreenState extends State<HomeScreen> {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: () {
-                        if (_fromController.text.isNotEmpty &&
-                            _toController.text.isNotEmpty) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => BusSearchResultsScreen(
-                                from: _fromController.text,
-                                to: _toController.text,
+                      onPressed: _isLoading ? null : _searchRoutes,
+                      child: _isLoading
+                        ? const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                ),
                               ),
+                              SizedBox(width: 12),
+                              Text(
+                                'Searching...',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          )
+                        : Text(
+                            AppLocalizations.of(context)?.findBus ?? 'Find Buses',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
                             ),
-                          );
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Please enter both departure and destination'),
-                              behavior: SnackBarBehavior.floating,
-                            ),
-                          );
-                        }
-                      },
-                      child: const Text(
-                        'Find Buses',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
+                          ),
                     ),
                   ),
                 ],
@@ -339,6 +525,51 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildSuggestionsList(List<String> suggestions, bool isFrom) {
+    return Container(
+      margin: const EdgeInsets.only(top: 4),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: ListView.builder(
+        shrinkWrap: true,
+        itemCount: suggestions.length,
+        itemBuilder: (context, index) {
+          final suggestion = suggestions[index];
+          return ListTile(
+            dense: true,
+            leading: const Icon(Icons.location_on, size: 16, color: Colors.grey),
+            title: Text(
+              suggestion,
+              style: const TextStyle(fontSize: 14),
+            ),
+            onTap: () {
+              if (isFrom) {
+                _fromController.text = suggestion;
+                setState(() {
+                  _showFromSuggestions = false;
+                });
+              } else {
+                _toController.text = suggestion;
+                setState(() {
+                  _showToSuggestions = false;
+                });
+              }
+            },
+          );
+        },
       ),
     );
   }

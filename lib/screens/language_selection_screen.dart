@@ -94,13 +94,15 @@ class LanguageSelectionScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
-          onTap: () {
-            context.read<AppProvider>().setLocale(Locale(languageCode));
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(
-                builder: (context) => const ThemeSelectionScreen(),
-              ),
-            );
+          onTap: () async {
+            await context.read<AppProvider>().setLocale(Locale(languageCode));
+            if (context.mounted) {
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(
+                  builder: (context) => const ThemeSelectionScreen(),
+                ),
+              );
+            }
           },
           child: Container(
             padding: const EdgeInsets.all(20),

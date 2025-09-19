@@ -40,14 +40,6 @@ class SettingsScreen extends StatelessWidget {
               // TODO: Update notification settings
             },
           ),
-          _buildNotificationCard(
-            'Promotional Offers',
-            'Stay updated with special offers and discounts',
-            false,
-            (value) {
-              // TODO: Update notification settings
-            },
-          ),
           const SizedBox(height: 20),
           
           // Location Section
@@ -65,14 +57,6 @@ class SettingsScreen extends StatelessWidget {
               // TODO: Update tracking settings
             },
           ),
-          _buildTrackingCard(
-            'Show nearby stops',
-            'Display bus stops near your location',
-            true,
-            (value) {
-              // TODO: Update tracking settings
-            },
-          ),
           const SizedBox(height: 20),
           
           // Data Section
@@ -85,14 +69,6 @@ class SettingsScreen extends StatelessWidget {
               _showClearCacheDialog(context);
             },
           ),
-          _buildDataCard(
-            'Download Offline Maps',
-            'Use maps without internet connection',
-            Icons.download,
-            () {
-              // TODO: Download offline maps
-            },
-          ),
           const SizedBox(height: 20),
           
           // About Section
@@ -102,22 +78,6 @@ class SettingsScreen extends StatelessWidget {
             '1.0.0',
             Icons.info_outline,
             () {},
-          ),
-          _buildAboutCard(
-            'Terms of Service',
-            'View terms and conditions',
-            Icons.description,
-            () {
-              // TODO: Show terms
-            },
-          ),
-          _buildAboutCard(
-            'Privacy Policy',
-            'View privacy policy',
-            Icons.privacy_tip,
-            () {
-              // TODO: Show privacy policy
-            },
           ),
         ],
       ),
@@ -319,25 +279,64 @@ class SettingsScreen extends StatelessWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Select Language'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _buildLanguageOption(context, 'English', 'en'),
-            _buildLanguageOption(context, 'हिंदी', 'hi'),
-            _buildLanguageOption(context, 'ગુજરાતી', 'gu'),
-            _buildLanguageOption(context, 'मराठी', 'mr'),
-          ],
+        content: SizedBox(
+          width: double.maxFinite,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildLanguageOption(context, 'English', 'en'),
+              _buildLanguageOption(context, 'हिंदी', 'hi'),
+              _buildLanguageOption(context, 'ગુજરાતી', 'gu'),
+              _buildLanguageOption(context, 'मराठी', 'mr'),
+              _buildLanguageOption(context, 'தமிழ்', 'ta'),
+              _buildLanguageOption(context, 'తెలుగు', 'te'),
+            ],
+          ),
         ),
       ),
     );
   }
 
   Widget _buildLanguageOption(BuildContext context, String name, String code) {
-    return ListTile(
-      title: Text(name),
-      onTap: () {
-        context.read<AppProvider>().setLocale(Locale(code));
-        Navigator.pop(context);
+    return Consumer<AppProvider>(
+      builder: (context, appProvider, child) {
+        final isSelected = appProvider.currentLocale.languageCode == code;
+        return ListTile(
+          title: Text(
+            name,
+            style: TextStyle(
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              color: isSelected ? Theme.of(context).colorScheme.primary : null,
+            ),
+          ),
+          trailing: isSelected ? Icon(
+            Icons.check_circle,
+            color: Theme.of(context).colorScheme.primary,
+          ) : null,
+          onTap: () async {
+            try {
+              await context.read<AppProvider>().setLocale(Locale(code));
+              if (context.mounted) {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Language changed to $name'),
+                    duration: const Duration(seconds: 2),
+                  ),
+                );
+              }
+            } catch (e) {
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Failed to change language: $e'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
+            }
+          },
+        );
       },
     );
   }

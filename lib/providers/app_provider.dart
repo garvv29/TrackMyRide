@@ -43,7 +43,7 @@ class AppProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setLocale(Locale locale) async {
+  Future<void> setLocale(Locale locale) async {
     _currentLocale = locale;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_localeKey, locale.languageCode);
@@ -68,7 +68,6 @@ class AppProvider extends ChangeNotifier {
       primary: Color(0xFF2D3748), // Dark gray
       secondary: Color(0xFF38B2AC), // Teal
       surface: Color(0xFFF7FAFC),
-      background: Color(0xFFFFFFFF),
       error: Color(0xFFE53E3E),
       onPrimary: Colors.white,
       onSecondary: Colors.white,
@@ -128,61 +127,82 @@ class AppProvider extends ChangeNotifier {
     useMaterial3: true,
     brightness: Brightness.dark,
     colorScheme: const ColorScheme.dark(
-      primary: Color(0xFF38B2AC), // Teal
-      secondary: Color(0xFF68D391), // Light green
-      surface: Color(0xFF1A202C),
-      background: Color(0xFF171923),
-      error: Color(0xFFFC8181),
-      onPrimary: Color(0xFF171923),
-      onSecondary: Color(0xFF171923),
-      onSurface: Color(0xFFE2E8F0),
+      primary: Color(0xFF4DD0E1), // Better teal for dark mode
+      primaryContainer: Color(0xFF00838F), 
+      onPrimary: Color(0xFF001F24),
+      onPrimaryContainer: Color(0xFFB2EBF2),
+      secondary: Color(0xFF81C784), // Better green for dark mode
+      secondaryContainer: Color(0xFF2E7D32),
+      onSecondary: Color(0xFF0D2818),
+      onSecondaryContainer: Color(0xFFC8E6C9),
+      tertiary: Color(0xFFBA68C8), // Purple accent
+      onTertiary: Color(0xFF1A0A1A),
+      surface: Color(0xFF121212), // True dark surface
+      surfaceContainerHighest: Color(0xFF2C2C2C),
+      onSurface: Color(0xFFE0E0E0),
+      error: Color(0xFFCF6679),
+      onError: Color(0xFF370009),
+      outline: Color(0xFF938F99),
+      outlineVariant: Color(0xFF49454F),
     ),
     appBarTheme: const AppBarTheme(
-      backgroundColor: Color(0xFF1A202C),
-      foregroundColor: Color(0xFFE2E8F0),
-      elevation: 0,
+      backgroundColor: Color(0xFF1E1E1E),
+      foregroundColor: Color(0xFFE0E0E0),
+      elevation: 4,
       centerTitle: true,
+      titleTextStyle: TextStyle(
+        fontSize: 20,
+        fontWeight: FontWeight.w600,
+        color: Color(0xFFE0E0E0),
+      ),
     ),
     cardTheme: CardThemeData(
-      elevation: 0,
-      color: const Color(0xFF1A202C),
+      elevation: 4,
+      color: const Color(0xFF1E1E1E),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: const BorderSide(color: Color(0xFF2D3748), width: 1),
+        side: const BorderSide(color: Color(0xFF2C2C2C), width: 1),
       ),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xFF38B2AC),
-        foregroundColor: const Color(0xFF171923),
-        elevation: 0,
+        backgroundColor: const Color(0xFF4DD0E1),
+        foregroundColor: const Color(0xFF001F24),
+        elevation: 2,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
-        foregroundColor: const Color(0xFF38B2AC),
-        side: const BorderSide(color: Color(0xFF2D3748)),
+        foregroundColor: const Color(0xFF4DD0E1),
+        side: const BorderSide(color: Color(0xFF4DD0E1)),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       ),
     ),
+    bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+      type: BottomNavigationBarType.fixed,
+      backgroundColor: Color(0xFF1E1E1E),
+      selectedItemColor: Color(0xFF4DD0E1),
+      unselectedItemColor: Color(0xFF938F99),
+      elevation: 8,
+    ),
     inputDecorationTheme: InputDecorationTheme(
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Color(0xFF2D3748)),
+        borderSide: const BorderSide(color: Color(0xFF49454F)),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Color(0xFF2D3748)),
+        borderSide: const BorderSide(color: Color(0xFF49454F)),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Color(0xFF38B2AC), width: 2),
+        borderSide: const BorderSide(color: Color(0xFF4DD0E1), width: 2),
       ),
       filled: true,
-      fillColor: const Color(0xFF1A202C),
+      fillColor: const Color(0xFF2C2C2C),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
     ),
   );

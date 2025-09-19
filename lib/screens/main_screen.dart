@@ -75,7 +75,7 @@ class _MainScreenState extends State<MainScreen> {
       case 2:
         return 'Alerts';
       case 3:
-        return 'Complaint';
+        return 'Report';
       default:
         return 'Track My Bus';
     }

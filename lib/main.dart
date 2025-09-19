@@ -6,8 +6,12 @@ import 'screens/language_selection_screen.dart';
 import 'screens/main_screen.dart';
 import 'screens/splash_screen.dart';
 import 'l10n/app_localizations.dart';
+import 'services/api_service.dart';
 
 void main() {
+  // Initialize API service
+  ApiService().initialize();
+  
   runApp(const MyApp());
 }
 
@@ -38,10 +42,6 @@ class MyApp extends StatelessWidget {
               Locale('mr'), // Marathi
               Locale('ta'), // Tamil
               Locale('te'), // Telugu
-              Locale('kn'), // Kannada
-              Locale('ml'), // Malayalam
-              Locale('bn'), // Bengali
-              Locale('pa'), // Punjabi
             ],
             initialRoute: '/',
             routes: {

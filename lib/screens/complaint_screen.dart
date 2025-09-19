@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../services/api_service.dart';
+import '../services/api_config.dart';
 
 class ComplaintScreen extends StatefulWidget {
   const ComplaintScreen({super.key});
@@ -13,6 +15,7 @@ class _ComplaintScreenState extends State<ComplaintScreen> {
   final _subjectController = TextEditingController();
   final _descriptionController = TextEditingController();
   String _selectedCategory = 'Service';
+  bool _isSubmitting = false;
 
   final List<String> _categories = [
     'Service',
@@ -248,7 +251,7 @@ class _ComplaintScreenState extends State<ComplaintScreen> {
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
-                          onPressed: _submitComplaint,
+                          onPressed: _isSubmitting ? null : _submitComplaint,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF2D3748),
                             padding: const EdgeInsets.symmetric(vertical: 12),
@@ -256,52 +259,28 @@ class _ComplaintScreenState extends State<ComplaintScreen> {
                               borderRadius: BorderRadius.circular(8),
                             ),
                           ),
-                          child: const Text(
-                            'Submit Complaint',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white,
-                            ),
-                          ),
+                          child: _isSubmitting
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : const Text(
+                                  'Submit Complaint',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.white,
+                                  ),
+                                ),
                         ),
                       ),
                     ],
                   ),
                 ),
-              ),
-              const SizedBox(height: 16),
-
-              // Previous Complaints
-              const Text(
-                'Your Previous Complaints',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF2D3748),
-                ),
-              ),
-              const SizedBox(height: 8),
-              _buildComplaintCard(
-                'Bus 101 - Delayed Service',
-                'Service',
-                'Resolved',
-                Colors.green,
-                '2 days ago',
-              ),
-              _buildComplaintCard(
-                'Unclean Bus Interior',
-                'Cleanliness',
-                'In Progress',
-                Colors.orange,
-                '1 week ago',
-              ),
-              _buildComplaintCard(
-                'Route Information Incorrect',
-                'Route Issues',
-                'Pending',
-                Colors.red,
-                '2 weeks ago',
               ),
             ],
           ),
@@ -310,95 +289,55 @@ class _ComplaintScreenState extends State<ComplaintScreen> {
     );
   }
 
-  Widget _buildComplaintCard(
-    String title,
-    String category,
-    String status,
-    Color statusColor,
-    String date,
-  ) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: const Color(0xFFE2E8F0),
-          width: 1,
-        ),
-      ),
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 12,
-          vertical: 4,
-        ),
-        title: Text(
-          title,
-          style: const TextStyle(
-            fontWeight: FontWeight.w500,
-            fontSize: 14,
-            color: Color(0xFF2D3748),
-          ),
-        ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 2),
-            Text(
-              'Category: $category',
-              style: const TextStyle(
-                fontSize: 12,
-                color: Color(0xFF718096),
-              ),
-            ),
-            const SizedBox(height: 1),
-            Text(
-              date,
-              style: const TextStyle(
-                color: Color(0xFF718096),
-                fontSize: 11,
-              ),
-            ),
-          ],
-        ),
-        trailing: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-          decoration: BoxDecoration(
-            color: statusColor.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(4),
-          ),
-          child: Text(
-            status,
-            style: TextStyle(
-              color: statusColor,
-              fontSize: 11,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ),
-        onTap: () {
-          // TODO: Show complaint details
-        },
-      ),
-    );
-  }
+  Future<void> _submitComplaint() async {
+    if (!_formKey.currentState!.validate()) return;
 
-  void _submitComplaint() {
-    if (_formKey.currentState!.validate()) {
-      // TODO: Submit complaint to backend
+    setState(() {
+      _isSubmitting = true;
+    });
+
+    try {
+      final apiService = ApiService();
+      final complaintData = {
+        'category': _selectedCategory,
+        'busNumber': _busNumberController.text.trim(),
+        'subject': _subjectController.text.trim(),
+        'description': _descriptionController.text.trim(),
+        'status': 'Pending',
+        'timestamp': DateTime.now().toIso8601String(),
+      };
+
+      final response = await apiService.post(ApiConfig.complaints, data: complaintData);
+
+      if (response['success'] == true) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Complaint submitted successfully!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        
+        // Clear form
+        _busNumberController.clear();
+        _subjectController.clear();
+        _descriptionController.clear();
+        setState(() {
+          _selectedCategory = 'Service';
+        });
+      } else {
+        throw Exception(response['message'] ?? 'Failed to submit complaint');
+      }
+    } catch (e) {
+      print('Error submitting complaint: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Complaint submitted successfully!'),
-          backgroundColor: Colors.green,
+        SnackBar(
+          content: Text('Failed to submit complaint: ${e.toString()}'),
+          backgroundColor: Colors.red,
         ),
       );
-      
-      // Clear form
-      _busNumberController.clear();
-      _subjectController.clear();
-      _descriptionController.clear();
+    } finally {
       setState(() {
-        _selectedCategory = 'Service';
+        _isSubmitting = false;
       });
     }
   }

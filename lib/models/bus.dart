@@ -1,3 +1,4 @@
+// Legacy Bus model - keeping for compatibility
 class Bus {
   final String busNumber;
   final String from;

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import '../models/bus.dart';
+import '../services/bus_stop_service.dart' as service;
 
-class BusStopsScreen extends StatelessWidget {
+class BusStopsScreen extends StatefulWidget {
   final Bus bus;
 
   const BusStopsScreen({
@@ -10,10 +11,47 @@ class BusStopsScreen extends StatelessWidget {
   });
 
   @override
+  State<BusStopsScreen> createState() => _BusStopsScreenState();
+}
+
+class _BusStopsScreenState extends State<BusStopsScreen> {
+  List<service.BusStop> _stops = [];
+  bool _isLoading = false;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadStops();
+  }
+
+  Future<void> _loadStops() async {
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+
+    try {
+      final stops = await service.BusStopService.getAllBusStops();
+      setState(() {
+        _stops = stops;
+      });
+    } catch (e) {
+      setState(() {
+        _error = 'Failed to load bus stops: ${e.toString()}';
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Bus ${bus.busNumber} - All Stops'),
+        title: Text('Bus ${widget.bus.busNumber} - All Stops'),
         backgroundColor: Theme.of(context).colorScheme.primary,
         foregroundColor: Colors.white,
       ),
@@ -28,7 +66,7 @@ class BusStopsScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '${bus.from} → ${bus.to}',
+                  '${widget.bus.from} → ${widget.bus.to}',
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -36,7 +74,7 @@ class BusStopsScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '${bus.departureTime} - ${bus.arrivalTime} • ${bus.duration}',
+                  '${widget.bus.departureTime} - ${widget.bus.arrivalTime} • ${widget.bus.duration}',
                   style: TextStyle(
                     color: Colors.grey.shade600,
                     fontSize: 14,
@@ -48,189 +86,104 @@ class BusStopsScreen extends StatelessWidget {
           
           // Stops List
           Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: bus.stops.length,
-              itemBuilder: (context, index) {
-                final stop = bus.stops[index];
-                final isFirst = index == 0;
-                final isLast = index == bus.stops.length - 1;
-                
-                return _buildStopItem(
-                  context,
-                  stop,
-                  index,
-                  isFirst,
-                  isLast,
-                );
-              },
-            ),
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : _error != null
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(Icons.error_outline, size: 64, color: Colors.grey),
+                            const SizedBox(height: 16),
+                            Text(_error!, textAlign: TextAlign.center),
+                            const SizedBox(height: 16),
+                            ElevatedButton(
+                              onPressed: _loadStops,
+                              child: const Text('Retry'),
+                            ),
+                          ],
+                        ),
+                      )
+                    : _stops.isEmpty
+                        ? const Center(child: Text('No bus stops found'))
+                        : ListView.builder(
+                            padding: const EdgeInsets.all(16),
+                            itemCount: _stops.length,
+                            itemBuilder: (context, index) {
+                              final stop = _stops[index];
+                              final isLast = index == _stops.length - 1;
+                              
+                              return Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // Timeline indicator
+                                  Column(
+                                    children: [
+                                      Container(
+                                        width: 12,
+                                        height: 12,
+                                        decoration: BoxDecoration(
+                                          color: Theme.of(context).colorScheme.primary,
+                                          shape: BoxShape.circle,
+                                        ),
+                                      ),
+                                      if (!isLast)
+                                        Container(
+                                          width: 2,
+                                          height: 50,
+                                          color: Colors.grey.shade300,
+                                        ),
+                                    ],
+                                  ),
+                                  const SizedBox(width: 12),
+                                  
+                                  // Stop details
+                                  Expanded(
+                                    child: Container(
+                                      margin: EdgeInsets.only(bottom: isLast ? 0 : 8),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            stop.stopName,
+                                            style: const TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                          if (stop.address.isNotEmpty) ...[
+                                            const SizedBox(height: 2),
+                                            Text(
+                                              stop.address,
+                                              style: TextStyle(
+                                                color: Colors.grey.shade600,
+                                                fontSize: 12,
+                                              ),
+                                            ),
+                                          ],
+                                          if (stop.stopCode.isNotEmpty) ...[
+                                            const SizedBox(height: 2),
+                                            Text(
+                                              'Stop Code: ${stop.stopCode}',
+                                              style: TextStyle(
+                                                color: Colors.grey.shade600,
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                          ],
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              );
+                            },
+                          ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildStopItem(
-    BuildContext context,
-    String stopName,
-    int index,
-    bool isFirst,
-    bool isLast,
-  ) {
-    return IntrinsicHeight(
-      child: Row(
-        children: [
-          // Timeline
-          SizedBox(
-            width: 30,
-            child: Column(
-              children: [
-                if (!isFirst)
-                  Container(
-                    width: 2,
-                    height: 20,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                Container(
-                  width: 12,
-                  height: 12,
-                  decoration: BoxDecoration(
-                    color: isFirst
-                        ? Colors.green
-                        : isLast
-                            ? Colors.red
-                            : Theme.of(context).colorScheme.primary,
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: Colors.white,
-                      width: 2,
-                    ),
-                  ),
-                ),
-                if (!isLast)
-                  Expanded(
-                    child: Container(
-                      width: 2,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                  ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 16),
-          
-          // Stop Info
-          Expanded(
-            child: Container(
-              margin: const EdgeInsets.only(bottom: 16),
-              child: Card(
-                elevation: 2,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              stopName,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                          if (isFirst)
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.green.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: Text(
-                                'Start',
-                                style: TextStyle(
-                                  color: Colors.green.shade700,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            )
-                          else if (isLast)
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.red.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: Text(
-                                'End',
-                                style: TextStyle(
-                                  color: Colors.red.shade700,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.schedule,
-                            size: 14,
-                            color: Colors.grey.shade600,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            _getEstimatedTime(index),
-                            style: TextStyle(
-                              color: Colors.grey.shade600,
-                              fontSize: 12,
-                            ),
-                          ),
-                          const Spacer(),
-                          Text(
-                            'Stop ${index + 1}',
-                            style: TextStyle(
-                              color: Colors.grey.shade600,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  String _getEstimatedTime(int index) {
-    // Calculate estimated time based on departure time and stop index
-    final departureTime = DateTime(2024, 1, 1, 8, 30); // Mock departure time
-    final estimatedArrival = departureTime.add(Duration(minutes: index * 10));
-    final hour = estimatedArrival.hour;
-    final minute = estimatedArrival.minute;
-    final period = hour >= 12 ? 'PM' : 'AM';
-    final displayHour = hour > 12 ? hour - 12 : hour == 0 ? 12 : hour;
-    return '${displayHour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')} $period';
-  }
 }

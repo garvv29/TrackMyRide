@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../models/bus_stop.dart';
+import 'package:geolocator/geolocator.dart';
+import '../services/bus_stop_service.dart' as service;
 
 class NearbyStopsScreen extends StatefulWidget {
   const NearbyStopsScreen({super.key});
@@ -10,50 +11,58 @@ class NearbyStopsScreen extends StatefulWidget {
 
 class _NearbyStopsScreenState extends State<NearbyStopsScreen> {
   bool _isMapView = true;
-  List<BusStop> _nearbyStops = [];
+  List<service.BusStop> _nearbyStops = [];
+  bool _isLoading = false;
+  Position? _currentPosition;
+  String? _errorMessage;
 
   @override
   void initState() {
     super.initState();
-    _loadNearbyStops();
+    _loadNearbyStopsFromBackend();
   }
 
-  void _loadNearbyStops() {
-    // Mock data - in real app, this would come from GPS location and API
-    _nearbyStops = [
-      BusStop(
-        id: '1',
-        name: 'Central Bus Station',
-        distance: 0.2,
-        busNumbers: ['101', '205', '301A', '150'],
-        address: 'Main Road, City Center',
-        nextBusArrival: '2 mins',
-      ),
-      BusStop(
-        id: '2',
-        name: 'City Mall Stop',
-        distance: 0.5,
-        busNumbers: ['101', '205'],
-        address: 'Mall Road, Shopping District',
-        nextBusArrival: '5 mins',
-      ),
-      BusStop(
-        id: '3',
-        name: 'University Gate',
-        distance: 0.8,
-        busNumbers: ['101', '301A'],
-        address: 'University Road',
-        nextBusArrival: '8 mins',
-      ),
-      BusStop(
-        id: '4',
-        name: 'Hospital Junction',
-        distance: 1.2,
-        busNumbers: ['205', '150'],
-        address: 'Hospital Road',
-        nextBusArrival: '12 mins',
-      ),
-    ];
+  Future<void> _loadNearbyStopsFromBackend() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      // Get current location
+      final permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        final requested = await Geolocator.requestPermission();
+        if (requested == LocationPermission.denied) {
+          setState(() {
+            _errorMessage = 'Location permission is required to find nearby stops';
+            _isLoading = false;
+          });
+          return;
+        }
+      }
+
+      _currentPosition = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      ).timeout(const Duration(seconds: 15));
+
+      // Load nearby stops from backend
+      final stops = await service.BusStopService.getNearbyBusStops(
+        latitude: _currentPosition!.latitude,
+        longitude: _currentPosition!.longitude,
+        radiusKm: 5.0,
+      ).timeout(const Duration(seconds: 10));
+
+      setState(() {
+        _nearbyStops = stops;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Failed to load nearby stops: ${e.toString()}';
+        _isLoading = false;
+      });
+    }
   }
 
   @override
@@ -76,7 +85,45 @@ class _NearbyStopsScreenState extends State<NearbyStopsScreen> {
           ),
         ],
       ),
-      body: _isMapView ? _buildMapView() : _buildListView(),
+      body: _isLoading 
+          ? const Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 16),
+                  Text('Finding nearby bus stops...'),
+                ],
+              ),
+            )
+          : _errorMessage != null
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.error_outline, size: 64, color: Colors.grey),
+                      SizedBox(height: 16),
+                      Text(_errorMessage!, textAlign: TextAlign.center),
+                      SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: _loadNearbyStopsFromBackend,
+                        child: Text('Retry'),
+                      ),
+                    ],
+                  ),
+                )
+              : _nearbyStops.isEmpty
+                  ? const Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.location_off, size: 64, color: Colors.grey),
+                          SizedBox(height: 16),
+                          Text('No nearby bus stops found'),
+                        ],
+                      ),
+                    )
+                  : _isMapView ? _buildMapView() : _buildListView(),
     );
   }
 
@@ -211,7 +258,7 @@ class _NearbyStopsScreenState extends State<NearbyStopsScreen> {
     );
   }
 
-  Widget _buildStopCard(BusStop stop) {
+  Widget _buildStopCard(service.BusStop stop) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
@@ -248,7 +295,7 @@ class _NearbyStopsScreenState extends State<NearbyStopsScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        stop.name,
+                        stop.stopName, // Use stopName from service
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -257,7 +304,7 @@ class _NearbyStopsScreenState extends State<NearbyStopsScreen> {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        '${stop.distance} km away',
+                        '${stop.city}, ${stop.state}', // Show location instead of distance
                         style: const TextStyle(
                           fontSize: 12,
                           color: Color(0xFF718096),
@@ -276,7 +323,7 @@ class _NearbyStopsScreenState extends State<NearbyStopsScreen> {
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
-                    stop.nextBusArrival,
+                    stop.stopCode, // Show stop code instead
                     style: const TextStyle(
                       fontSize: 11,
                       color: Colors.green,
@@ -298,7 +345,7 @@ class _NearbyStopsScreenState extends State<NearbyStopsScreen> {
             Row(
               children: [
                 const Text(
-                  'Buses: ',
+                  'Amenities: ',
                   style: TextStyle(
                     fontSize: 12,
                     color: Color(0xFF718096),
@@ -308,26 +355,36 @@ class _NearbyStopsScreenState extends State<NearbyStopsScreen> {
                 Expanded(
                   child: Wrap(
                     spacing: 6,
-                    children: stop.busNumbers.map((busNumber) {
-                      return Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 6,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF2D3748).withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          busNumber,
-                          style: const TextStyle(
-                            fontSize: 11,
-                            color: Color(0xFF2D3748),
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      );
-                    }).toList(),
+                    children: stop.amenities.isEmpty 
+                        ? [
+                            const Text(
+                              'None listed',
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: Color(0xFF718096),
+                              ),
+                            ),
+                          ]
+                        : stop.amenities.map((amenity) {
+                            return Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF2D3748).withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                amenity,
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                  color: Color(0xFF2D3748),
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            );
+                          }).toList(),
                   ),
                 ),
               ],

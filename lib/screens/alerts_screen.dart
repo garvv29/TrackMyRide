@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../services/api_service.dart';
+import '../services/api_config.dart';
 
 class AlertsScreen extends StatefulWidget {
   const AlertsScreen({super.key});
@@ -8,6 +10,42 @@ class AlertsScreen extends StatefulWidget {
 }
 
 class _AlertsScreenState extends State<AlertsScreen> {
+  bool _notificationsEnabled = true;
+  bool _isLoading = false;
+  List<Map<String, dynamic>> _alerts = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAlerts();
+  }
+
+  Future<void> _loadAlerts() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      // Try to load alerts from backend
+      final apiService = ApiService();
+      final response = await apiService.get(ApiConfig.notifications);
+      if (response['success'] == true) {
+        setState(() {
+          _alerts = List<Map<String, dynamic>>.from(response['notifications'] ?? []);
+        });
+      }
+    } catch (e) {
+      // If backend is not available or no alerts, show empty state
+      print('Error loading alerts: $e');
+      setState(() {
+        _alerts = [];
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -16,7 +54,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
           // Alert Settings
           Container(
             padding: const EdgeInsets.all(16),
-            color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
             child: Row(
               children: [
                 Icon(
@@ -34,9 +72,11 @@ class _AlertsScreenState extends State<AlertsScreen> {
                   ),
                 ),
                 Switch(
-                  value: true,
+                  value: _notificationsEnabled,
                   onChanged: (value) {
-                    // TODO: Toggle notifications
+                    setState(() {
+                      _notificationsEnabled = value;
+                    });
                   },
                 ),
               ],
@@ -45,55 +85,102 @@ class _AlertsScreenState extends State<AlertsScreen> {
           
           // Alerts List
           Expanded(
-            child: ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                _buildAlertCard(
-                  'Service Update',
-                  'Bus 101 service will be delayed by 10 minutes due to traffic congestion on Main Street.',
-                  Icons.warning,
-                  Colors.orange,
-                  '2 mins ago',
-                  false,
-                ),
-                _buildAlertCard(
-                  'Route Change',
-                  'Bus 205 route has been temporarily modified. New stops added: Tech Park East, Innovation Center.',
-                  Icons.route,
-                  Colors.blue,
-                  '15 mins ago',
-                  false,
-                ),
-                _buildAlertCard(
-                  'New Service',
-                  'Introducing Bus 301 - Express service from Central Station to Airport. Starting tomorrow.',
-                  Icons.new_releases,
-                  Colors.green,
-                  '1 hour ago',
-                  true,
-                ),
-                _buildAlertCard(
-                  'Maintenance Notice',
-                  'Bus 150 will be out of service on Sunday for scheduled maintenance. Alternative routes available.',
-                  Icons.build,
-                  Colors.red,
-                  '2 hours ago',
-                  true,
-                ),
-                _buildAlertCard(
-                  'Fare Update',
-                  'Bus fare for AC services has been revised. New fare structure effective from next month.',
-                  Icons.currency_rupee,
-                  Colors.purple,
-                  '1 day ago',
-                  true,
-                ),
-              ],
-            ),
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : _alerts.isEmpty
+                    ? _buildEmptyState()
+                    : ListView.builder(
+                        padding: const EdgeInsets.all(16),
+                        itemCount: _alerts.length,
+                        itemBuilder: (context, index) {
+                          final alert = _alerts[index];
+                          return _buildAlertCard(
+                            alert['title'] ?? 'Alert',
+                            alert['message'] ?? '',
+                            _getIconForType(alert['type']),
+                            _getColorForType(alert['type']),
+                            alert['time'] ?? 'Just now',
+                            alert['isRead'] ?? false,
+                          );
+                        },
+                      ),
           ),
         ],
       ),
     );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.notifications_none,
+            size: 64,
+            color: Colors.grey.shade400,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'No alerts at the moment',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w500,
+              color: Colors.grey.shade600,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'You\'ll be notified when there are important\nupdates about bus services',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey.shade500,
+            ),
+          ),
+          const SizedBox(height: 24),
+          OutlinedButton.icon(
+            onPressed: _loadAlerts,
+            icon: const Icon(Icons.refresh),
+            label: const Text('Refresh'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  IconData _getIconForType(String? type) {
+    switch (type) {
+      case 'warning':
+        return Icons.warning;
+      case 'route':
+        return Icons.route;
+      case 'service':
+        return Icons.new_releases;
+      case 'maintenance':
+        return Icons.build;
+      case 'fare':
+        return Icons.currency_rupee;
+      default:
+        return Icons.info;
+    }
+  }
+
+  Color _getColorForType(String? type) {
+    switch (type) {
+      case 'warning':
+        return Colors.orange;
+      case 'route':
+        return Colors.blue;
+      case 'service':
+        return Colors.green;
+      case 'maintenance':
+        return Colors.red;
+      case 'fare':
+        return Colors.purple;
+      default:
+        return Colors.grey;
+    }
   }
 
   Widget _buildAlertCard(
@@ -112,7 +199,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
         side: isRead
             ? BorderSide.none
             : BorderSide(
-                color: color.withOpacity(0.3),
+                color: color.withValues(alpha: 0.3),
                 width: 1,
               ),
       ),
@@ -122,7 +209,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
           width: 50,
           height: 50,
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             shape: BoxShape.circle,
           ),
           child: Icon(
