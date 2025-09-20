@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/app_provider.dart';
+import '../l10n/app_localizations.dart';
 import 'main_screen.dart';
 
 class ThemeSelectionScreen extends StatelessWidget {
@@ -38,9 +39,9 @@ class ThemeSelectionScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 32),
-              const Text(
-                'Choose Your Style',
-                style: TextStyle(
+              Text(
+                AppLocalizations.of(context)?.chooseYourStyle ?? 'Choose Your Style',
+                style: const TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.w700,
                   color: Color(0xFF2D3748),
@@ -49,8 +50,8 @@ class ThemeSelectionScreen extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                'Select the appearance that suits you best',
-                style: TextStyle(
+                AppLocalizations.of(context)?.selectAppearance ?? 'Select the appearance that suits you best',
+                style: const TextStyle(
                   fontSize: 16,
                   color: Color(0xFF718096),
                   fontWeight: FontWeight.w500,
@@ -66,8 +67,8 @@ class ThemeSelectionScreen extends StatelessWidget {
                     // Light Mode Option
                     _buildThemeOption(
                       context,
-                      'Light Mode',
-                      'Clean and bright interface',
+                      AppLocalizations.of(context)?.lightMode ?? 'Light Mode',
+                      AppLocalizations.of(context)?.cleanBrightInterface ?? 'Clean and bright interface',
                       Icons.light_mode_rounded,
                       false,
                       const Color(0xFFFFFFFF),
@@ -79,8 +80,8 @@ class ThemeSelectionScreen extends StatelessWidget {
                     // Dark Mode Option
                     _buildThemeOption(
                       context,
-                      'Dark Mode',
-                      'Easy on your eyes',
+                      AppLocalizations.of(context)?.darkMode ?? 'Dark Mode',
+                      AppLocalizations.of(context)?.easyOnEyes ?? 'Easy on your eyes',
                       Icons.dark_mode_rounded,
                       true,
                       const Color(0xFF171923),
@@ -99,9 +100,9 @@ class ThemeSelectionScreen extends StatelessWidget {
                         foregroundColor: const Color(0xFF718096),
                         padding: const EdgeInsets.symmetric(vertical: 16),
                       ),
-                      child: const Text(
-                        'Skip for now',
-                        style: TextStyle(
+                      child: Text(
+                        AppLocalizations.of(context)?.skipForNow ?? 'Skip for now',
+                        style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
                         ),

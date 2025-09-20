@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/app_provider.dart';
+import '../l10n/app_localizations.dart';
 import 'theme_selection_screen.dart';
 
 class LanguageSelectionScreen extends StatelessWidget {
@@ -38,9 +39,9 @@ class LanguageSelectionScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 32),
-              const Text(
-                'Track My Ride',
-                style: TextStyle(
+              Text(
+                AppLocalizations.of(context)?.appTitle ?? 'Track My Ride',
+                style: const TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.w700,
                   color: Color(0xFF2D3748),
@@ -49,8 +50,8 @@ class LanguageSelectionScreen extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                'Choose your preferred language',
-                style: TextStyle(
+                AppLocalizations.of(context)?.choosePreferredLanguage ?? 'Choose your preferred language',
+                style: const TextStyle(
                   fontSize: 16,
                   color: Color(0xFF718096),
                   fontWeight: FontWeight.w500,
@@ -64,14 +65,11 @@ class LanguageSelectionScreen extends StatelessWidget {
                   children: [
                     _buildLanguageOption(context, 'English', 'en'),
                     _buildLanguageOption(context, 'हिंदी', 'hi'),
+                    _buildLanguageOption(context, 'ਪੰਜਾਬੀ', 'pa'),
                     _buildLanguageOption(context, 'ગુજરાતી', 'gu'),
                     _buildLanguageOption(context, 'मराठी', 'mr'),
                     _buildLanguageOption(context, 'தமிழ்', 'ta'),
                     _buildLanguageOption(context, 'తెలుగు', 'te'),
-                    _buildLanguageOption(context, 'ಕನ್ನಡ', 'kn'),
-                    _buildLanguageOption(context, 'മലയാളം', 'ml'),
-                    _buildLanguageOption(context, 'বাংলা', 'bn'),
-                    _buildLanguageOption(context, 'ਪੰਜਾਬੀ', 'pa'),
                   ],
                 ),
               ),

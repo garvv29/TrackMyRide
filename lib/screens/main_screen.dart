@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'home_screen.dart';
 import 'search_screen.dart';
-import 'alerts_screen.dart';
 import 'complaint_screen.dart';
 import '../widgets/custom_drawer.dart';
+import '../l10n/app_localizations.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -18,7 +18,6 @@ class _MainScreenState extends State<MainScreen> {
   final List<Widget> _screens = [
     const HomeScreen(),
     const SearchScreen(),
-    const AlertsScreen(),
     const ComplaintScreen(),
   ];
 
@@ -44,22 +43,18 @@ class _MainScreenState extends State<MainScreen> {
         onTap: _onItemTapped,
         selectedItemColor: Theme.of(context).colorScheme.primary,
         unselectedItemColor: Colors.grey,
-        items: const [
+        items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
-            label: 'Home',
+            label: AppLocalizations.of(context)?.home ?? 'Home',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.search),
-            label: 'Search',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.notifications),
-            label: 'Alerts',
+            label: AppLocalizations.of(context)?.search ?? 'Search',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.report_problem),
-            label: 'Complaint',
+            label: AppLocalizations.of(context)?.complaint ?? 'Complaint',
           ),
         ],
       ),
@@ -69,15 +64,13 @@ class _MainScreenState extends State<MainScreen> {
   String _getAppBarTitle() {
     switch (_selectedIndex) {
       case 0:
-        return 'Track My Ride';
+        return AppLocalizations.of(context)?.trackMyRide ?? 'Track My Ride';
       case 1:
-        return 'Search Buses';
+        return AppLocalizations.of(context)?.searchBuses ?? 'Search Buses';
       case 2:
-        return 'Alerts';
-      case 3:
-        return 'Report';
+        return AppLocalizations.of(context)?.report ?? 'Report';
       default:
-        return 'Track My Bus';
+        return AppLocalizations.of(context)?.trackMyBus ?? 'Track My Bus';
     }
   }
 }

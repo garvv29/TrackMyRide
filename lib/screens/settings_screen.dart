@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/app_provider.dart';
+import '../l10n/app_localizations.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -9,7 +10,7 @@ class SettingsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Settings'),
+        title: Text(AppLocalizations.of(context)?.settings ?? 'Settings'),
         backgroundColor: Theme.of(context).colorScheme.primary,
         foregroundColor: Colors.white,
       ),
@@ -261,12 +262,6 @@ class SettingsScreen extends StatelessWidget {
         return 'தமிழ்';
       case 'te':
         return 'తెలుగు';
-      case 'kn':
-        return 'ಕನ್ನಡ';
-      case 'ml':
-        return 'മലയാളം';
-      case 'bn':
-        return 'বাংলা';
       case 'pa':
         return 'ਪੰਜਾਬੀ';
       default:
@@ -286,6 +281,7 @@ class SettingsScreen extends StatelessWidget {
             children: [
               _buildLanguageOption(context, 'English', 'en'),
               _buildLanguageOption(context, 'हिंदी', 'hi'),
+              _buildLanguageOption(context, 'ਪੰਜਾਬੀ', 'pa'),
               _buildLanguageOption(context, 'ગુજરાતી', 'gu'),
               _buildLanguageOption(context, 'मराठी', 'mr'),
               _buildLanguageOption(context, 'தமிழ்', 'ta'),

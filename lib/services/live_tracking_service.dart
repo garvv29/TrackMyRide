@@ -1,9 +1,14 @@
 import 'dart:async';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
 import '../models/bus_tracking_models.dart';
 import '../services/route_service.dart';
 
 class LiveTrackingService {
+  static const String baseUrl = 'http://10.0.2.2:3000'; // Android emulator
+  // static const String baseUrl = 'http://localhost:3000'; // iOS simulator
+  
   static const Duration _updateInterval = Duration(seconds: 10);
   
   Timer? _trackingTimer;
@@ -80,12 +85,51 @@ class LiveTrackingService {
   /// Fetch current bus location and status
   Future<LiveBusData?> _fetchBusLocation(String busId) async {
     try {
-      // For now, simulate live data - in real app this would come from GPS tracker
-      final response = await _simulateBusData(busId);
-      return response;
+      // Try to get real live data from backend API
+      final response = await http.get(
+        Uri.parse('$baseUrl/api/location/live/$busId'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      ).timeout(const Duration(seconds: 5));
+      
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        
+        if (data['success'] == true && data['data'] != null) {
+          final locationData = data['data'];
+          
+          // Convert backend data to LiveBusData model
+          return LiveBusData(
+            busId: locationData['busId'] ?? busId,
+            routeId: locationData['routeId'] ?? 'route_raipur_004',
+            currentLocation: LatLng(
+              locationData['latitude']?.toDouble() ?? 21.2497,
+              locationData['longitude']?.toDouble() ?? 81.6947,
+            ),
+            speed: locationData['speed']?.toDouble() ?? 0.0,
+            direction: 'forward',
+            currentStopIndex: _calculateStopIndex(LatLng(
+              locationData['latitude']?.toDouble() ?? 21.2497,
+              locationData['longitude']?.toDouble() ?? 81.6947,
+            )),
+            lastUpdate: DateTime.tryParse(locationData['timestamp'] ?? '') ?? DateTime.now(),
+            isOnline: locationData['isActive'] ?? false,
+            batteryLevel: 85.0,
+            passengerCount: 15 + (DateTime.now().second % 25),
+          );
+        }
+      } else {
+        print('❌ API returned status: ${response.statusCode}');
+      }
+      
+      // Fallback to simulation if API fails
+      print('📍 Using simulated data for bus $busId');
+      return await _simulateBusData(busId);
     } catch (e) {
-      print('Error fetching bus location: $e');
-      return null;
+      print('❌ Error fetching bus location: $e, using simulation');
+      // Fallback to simulation
+      return await _simulateBusData(busId);
     }
   }
   
@@ -173,7 +217,99 @@ class LiveTrackingService {
     );
   }
   
-  /// Simulate stop timings (replace with real schedule data later)
+  /// Calculate current stop index based on bus location
+  int _calculateStopIndex(LatLng busLocation) {
+    try {
+      // Define Route 004 stops with real coordinates
+      final List<LatLng> stops = [
+        LatLng(21.2497, 81.6947), // Railway Station
+        LatLng(21.2463, 81.6892), // Ghadi Chowk
+        LatLng(21.2398, 81.6821), // Marine Drive
+        LatLng(21.2287, 81.6654), // Telibandha
+        LatLng(21.2201, 81.6432), // VIP Road Chowk
+        LatLng(21.2144, 81.6273), // Magneto Mall
+      ];
+      
+      // Find closest stop to current bus location
+      double minDistance = double.infinity;
+      int closestStopIndex = 0;
+      
+      for (int i = 0; i < stops.length; i++) {
+        final distance = _calculateDistance(busLocation, stops[i]);
+        if (distance < minDistance) {
+          minDistance = distance;
+          closestStopIndex = i;
+        }
+      }
+      
+      return closestStopIndex;
+    } catch (e) {
+      print('❌ Error calculating stop index: $e');
+      return 0;
+    }
+  }
+  
+  /// Calculate distance between two points in kilometers
+  double _calculateDistance(LatLng point1, LatLng point2) {
+    const double earthRadius = 6371; // km
+    final lat1Rad = point1.latitude * (3.14159 / 180);
+    final lat2Rad = point2.latitude * (3.14159 / 180);
+    final deltaLat = (point2.latitude - point1.latitude) * (3.14159 / 180);
+    final deltaLng = (point2.longitude - point1.longitude) * (3.14159 / 180);
+    
+    final a = (deltaLat / 2) * (deltaLat / 2) +
+        lat1Rad * lat2Rad *
+        (deltaLng / 2) * (deltaLng / 2);
+    final c = 2 * (a < 1 ? a : 1);
+    
+    return earthRadius * c;
+  }
+  
+  /// Fetch all Route 004 live buses
+  static Future<List<LiveBusData>> getRoute004LiveBuses() async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/api/location/route004/live'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      ).timeout(const Duration(seconds: 5));
+      
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        
+        if (data['success'] == true) {
+          final List<dynamic> locationList = data['data'] ?? [];
+          
+          List<LiveBusData> busLocations = locationList.map((item) {
+            return LiveBusData(
+              busId: item['busId'] ?? '',
+              routeId: item['routeId'] ?? 'route_raipur_004',
+              currentLocation: LatLng(
+                item['latitude']?.toDouble() ?? 21.2497,
+                item['longitude']?.toDouble() ?? 81.6947,
+              ),
+              speed: item['speed']?.toDouble() ?? 0.0,
+              direction: 'forward',
+              currentStopIndex: 0,
+              lastUpdate: DateTime.tryParse(item['timestamp'] ?? '') ?? DateTime.now(),
+              isOnline: item['isActive'] ?? false,
+              batteryLevel: 85.0,
+              passengerCount: 15,
+            );
+          }).toList();
+          
+          print('📍 Received ${busLocations.length} Route 004 buses');
+          return busLocations;
+        }
+      }
+      
+      return [];
+    } catch (e) {
+      print('❌ Error fetching Route 004 buses: $e');
+      return [];
+    }
+  }
   Future<List<StopTiming>> _simulateStopTimings(String routeId) async {
     final now = DateTime.now();
     final baseTime = DateTime(now.year, now.month, now.day, 9, 0); // 9 AM start

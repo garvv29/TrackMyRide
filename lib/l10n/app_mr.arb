@@ -46,5 +46,22 @@
   "frequency": "वारंवारता",
   "busNumber": "बस क्रमांक",
   "departure": "प्रस्थान",
-  "arrival": "आगमन"
+  "arrival": "आगमन",
+  "appearance": "दिसणे",
+  "busAlerts": "बस अलर्ट",
+  "busAlertsDesc": "सेवा अपडेट आणि विलंब बद्दल सूचित रहा",
+  "dataStorage": "डेटा आणि स्टोरेज",
+  "clearCache": "कॅश साफ करा",
+  "freeUpStorage": "स्टोरेज जागा मुक्त करा",
+  "locationAccess": "स्थान प्रवेश",
+  "locationAccessDesc": "चांगल्या सेवांसाठी अॅपला तुमच्या स्थानाचा प्रवेश द्या",
+  "appVersion": "अॅप आवृत्ती",
+  "selectLanguageDialog": "भाषा निवडा",
+  "submitComplaint": "तक्रार सबमिट करा",
+  "pleaseEnterName": "कृपया तुमचे नाव टाका",
+  "pleaseEnterMobile": "कृपया मोबाइल नंबर टाका",
+  "pleaseEnterBusNumber": "कृपया बस नंबर टाका",
+  "pleaseEnterSubject": "कृपया विषय टाका",
+  "pleaseProvideDescription": "कृपया वर्णन द्या",
+  "descriptionMinLength": "वर्णन किमान 10 अक्षरे लांब असावे"
 }

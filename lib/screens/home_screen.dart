@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'nearby_stops_screen.dart';
-import 'search_screen.dart';
 import 'bus_search_results_screen.dart';
+import 'recent_routes_screen.dart';
 import '../services/app_status_service.dart';
 import '../services/city_service.dart';
 import '../services/bus_stop_service.dart';
+import '../services/route_search_history.dart';
 import '../l10n/app_localizations.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -110,7 +111,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final to = _toController.text.trim();
 
     if (from.isEmpty || to.isEmpty) {
-      _showError('Please enter both departure and destination');
+      _showError(AppLocalizations.of(context)?.pleaseEnterBothLocations ?? 'Please enter both departure and destination');
       return;
     }
 
@@ -119,6 +120,9 @@ class _HomeScreenState extends State<HomeScreen> {
     });
 
     try {
+      // Save to route search history
+      await RouteSearchHistory.addRouteSearch(from, to);
+      
       if (mounted) {
         Navigator.push(
           context,
@@ -133,7 +137,7 @@ class _HomeScreenState extends State<HomeScreen> {
         );
       }
     } catch (e) {
-      _showError('Failed to search routes: ${e.toString()}');
+      _showError(AppLocalizations.of(context)?.failedToSearchRoutes ?? 'Failed to search routes: ${e.toString()}');
     } finally {
       setState(() {
         _isLoading = false;
@@ -193,7 +197,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            'Limited connectivity - Some features may not work',
+                            AppLocalizations.of(context)?.limitedConnectivity ?? 'Limited connectivity - Some features may not work',
                             style: TextStyle(color: Colors.orange.shade700, fontSize: 12),
                           ),
                         ),
@@ -246,8 +250,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                             SizedBox(height: 2),
                             Text(
-                              'Find the perfect route for your journey',
-                              style: TextStyle(
+                              AppLocalizations.of(context)?.findPerfectRoute ?? 'Find the perfect route for your journey',
+                              style: const TextStyle(
                                 color: Colors.white70,
                                 fontSize: 13,
                                 fontWeight: FontWeight.w500,
@@ -267,10 +271,10 @@ class _HomeScreenState extends State<HomeScreen> {
             Container(
               padding: const EdgeInsets.all(18),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Theme.of(context).cardColor,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: const Color(0xFFE2E8F0),
+                  color: Theme.of(context).dividerColor,
                   width: 1,
                 ),
               ),
@@ -293,12 +297,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                       const SizedBox(width: 10),
-                      const Text(
-                        'Plan Your Journey',
-                        style: TextStyle(
+                      Text(
+                        AppLocalizations.of(context)?.planYourJourney ?? 'Plan Your Journey',
+                        style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
-                          color: Color(0xFF2D3748),
                         ),
                       ),
                     ],
@@ -312,7 +315,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         controller: _fromController,
                         label: AppLocalizations.of(context)?.fromBusStand ?? 'From',
                         icon: Icons.my_location_rounded,
-                        hint: 'Choose departure location',
+                        hint: AppLocalizations.of(context)?.chooseDepartureLocation ?? 'Choose departure location',
                       ),
                       if (_showFromSuggestions) _buildSuggestionsList(_fromSuggestions, true),
                     ],
@@ -351,7 +354,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         controller: _toController,
                         label: AppLocalizations.of(context)?.toBusStand ?? 'To',
                         icon: Icons.location_on_rounded,
-                        hint: 'Choose destination',
+                        hint: AppLocalizations.of(context)?.chooseDestinationLocation ?? 'Choose destination',
                       ),
                       if (_showToSuggestions) _buildSuggestionsList(_toSuggestions, false),
                     ],
@@ -400,12 +403,12 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 20),
 
             // Quick Actions
-            const Text(
-              'Quick Actions',
+            Text(
+              AppLocalizations.of(context)?.quickActions ?? 'Quick Actions',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
-                color: Color(0xFF2D3748),
+                color: Theme.of(context).textTheme.bodyLarge?.color,
               ),
             ),
             const SizedBox(height: 12),
@@ -414,7 +417,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 Expanded(
                   child: _buildQuickActionCard(
                     context,
-                    'Nearby Bus Stops',
+                    AppLocalizations.of(context)?.nearbyStops ?? 'Nearby Bus Stops',
                     Icons.location_on_rounded,
                     const Color(0xFF38B2AC),
                     () {
@@ -431,17 +434,23 @@ class _HomeScreenState extends State<HomeScreen> {
                 Expanded(
                   child: _buildQuickActionCard(
                     context,
-                    'Live Tracking',
-                    Icons.gps_fixed_rounded,
+                    AppLocalizations.of(context)?.recentRoutesSearches ?? 'Recent Searches',
+                    Icons.history_rounded,
                     const Color(0xFFE53E3E),
-                    () {
-                      Navigator.of(context).push(
+                    () async {
+                      final result = await Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (context) => const SearchScreen(
-                            initialSearchType: 'number',
-                          ),
+                          builder: (context) => const RecentRoutesScreen(),
                         ),
                       );
+                      
+                      // If user selected a route item, populate the search fields
+                      if (result != null && result is RouteSearchItem) {
+                        setState(() {
+                          _fromController.text = result.from;
+                          _toController.text = result.to;
+                        });
+                      }
                     },
                   ),
                 ),
@@ -486,10 +495,10 @@ class _HomeScreenState extends State<HomeScreen> {
   ) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: const Color(0xFFE2E8F0),
+          color: Theme.of(context).dividerColor,
           width: 1,
         ),
       ),
@@ -516,10 +525,10 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(height: 8),
               Text(
                 title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF2D3748),
+                  color: Theme.of(context).textTheme.bodyLarge?.color,
                 ),
               ),
             ],
@@ -533,7 +542,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Container(
       margin: const EdgeInsets.only(top: 4),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(8),
         boxShadow: [
           BoxShadow(

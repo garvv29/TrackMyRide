@@ -50,5 +50,22 @@
   "cancel": "રદ કરો",
   "ok": "ઠીક છે",
   "yes": "હા",
-  "no": "ના"
+  "no": "ના",
+  "appearance": "દેખાવ",
+  "busAlerts": "બસ એલર્ટ",
+  "busAlertsDesc": "સેવા અપડેટ અને વિલંબ વિશે સૂચિત રહો",
+  "dataStorage": "ડેટા અને સ્ટોરેજ",
+  "clearCache": "કેશ સાફ કરો",
+  "freeUpStorage": "સ્ટોરેજ સ્પેસ ફ્રી કરો",
+  "locationAccess": "સ્થાન ઍક્સેસ",
+  "locationAccessDesc": "વધુ સારી સેવાઓ માટે એપને તમારા સ્થાનની ઍક્સેસ આપો",
+  "appVersion": "એપ વર્ઝન",
+  "selectLanguageDialog": "ભાષા પસંદ કરો",
+  "submitComplaint": "ફરિયાદ સબમિટ કરો",
+  "pleaseEnterName": "કૃપા કરીને તમારું નામ દાખલ કરો",
+  "pleaseEnterMobile": "કૃપા કરીને મોબાઇલ નંબર દાખલ કરો",
+  "pleaseEnterBusNumber": "કૃપા કરીને બસ નંબર દાખલ કરો",
+  "pleaseEnterSubject": "કૃપા કરીને વિષય દાખલ કરો",
+  "pleaseProvideDescription": "કૃપા કરીને વર્ણન આપો",
+  "descriptionMinLength": "વર્ણન ઓછામાં ઓછું 10 અક્ષર લાંબું હોવું જોઈએ"
 }

@@ -353,12 +353,27 @@ class _RouteDetailsScreenState extends State<RouteDetailsScreen> {
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: Text(
-                  _isTrackingActive ? 'Live Tracking Active' : 'Live Tracking Inactive',
-                  style: TextStyle(
-                    color: _isTrackingActive ? Colors.green.shade700 : Colors.grey.shade700,
-                    fontWeight: FontWeight.w500,
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _isTrackingActive ? 'Live Tracking Active' : 'Live Tracking Inactive',
+                      style: TextStyle(
+                        color: _isTrackingActive ? Colors.green.shade700 : Colors.grey.shade700,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    if (_isTrackingActive && _currentBusData != null) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        'Bus ${_currentBusData!.busId} • ${_currentBusData!.speed.toInt()} km/h',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.green.shade600,
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
               ),
               TextButton(
@@ -368,6 +383,13 @@ class _RouteDetailsScreenState extends State<RouteDetailsScreen> {
             ],
           ),
         ),
+        
+        // Live Bus Status (only show when tracking)
+        if (_isTrackingActive && _currentBusData != null) ...[
+          const SizedBox(height: 12),
+          _buildLiveBusStatusCard(),
+        ],
+        
         const SizedBox(height: 12),
         
         // View on Map Button
@@ -387,6 +409,232 @@ class _RouteDetailsScreenState extends State<RouteDetailsScreen> {
           ),
         ),
       ],
+    );
+  }
+  
+  /// Build live bus status card
+  Widget _buildLiveBusStatusCard() {
+    if (_currentBusData == null) return const SizedBox.shrink();
+    
+    final busData = _currentBusData!;
+    final timeSinceUpdate = DateTime.now().difference(busData.lastUpdate);
+    final isRecent = timeSinceUpdate.inMinutes < 2;
+    
+    return Card(
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          children: [
+            // Header
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.shade100,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.directions_bus,
+                    color: Colors.blue.shade700,
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Bus ${busData.busId}',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                      Text(
+                        busData.isOnline ? 'Online' : 'Offline',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: busData.isOnline ? Colors.green : Colors.red,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: isRecent ? Colors.green : Colors.orange,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    isRecent ? 'LIVE' : '${timeSinceUpdate.inMinutes}m ago',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            
+            const SizedBox(height: 12),
+            
+            // Status Row
+            Row(
+              children: [
+                Expanded(
+                  child: _buildStatusItem(
+                    Icons.speed,
+                    'Speed',
+                    '${busData.speed.toInt()} km/h',
+                    _getSpeedColor(busData.speed),
+                  ),
+                ),
+                Expanded(
+                  child: _buildStatusItem(
+                    Icons.people,
+                    'Passengers',
+                    '${busData.passengerCount}',
+                    Colors.orange,
+                  ),
+                ),
+                Expanded(
+                  child: _buildStatusItem(
+                    Icons.battery_std,
+                    'Battery',
+                    '${busData.batteryLevel.toInt()}%',
+                    busData.batteryLevel > 20 ? Colors.green : Colors.red,
+                  ),
+                ),
+              ],
+            ),
+            
+            // Route Progress
+            if (_routeProgress != null) ...[
+              const SizedBox(height: 12),
+              const Divider(height: 1),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Icon(Icons.route, size: 16, color: Colors.purple),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Route Progress',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                        Text(
+                          _routeProgress!.progressText,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.purple,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Text(
+                    _routeProgress!.etaText,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey.shade700,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+            
+            // ETA to next stop
+            if (_stopTimings.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              _buildNextStopETA(),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+  
+  /// Build status item for live bus card
+  Widget _buildStatusItem(IconData icon, String label, String value, Color color) {
+    return Column(
+      children: [
+        Icon(icon, size: 18, color: color),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: color,
+          ),
+        ),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 10,
+            color: Colors.grey.shade600,
+          ),
+        ),
+      ],
+    );
+  }
+  
+  /// Build next stop ETA
+  Widget _buildNextStopETA() {
+    final nextStop = _stopTimings.firstWhere(
+      (stop) => !stop.isPassed,
+      orElse: () => _stopTimings.last,
+    );
+    
+    final eta = nextStop.estimatedArrival.difference(DateTime.now());
+    final isLate = nextStop.delayMinutes > 0;
+    
+    return Container(
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: isLate ? Colors.orange.shade50 : Colors.blue.shade50,
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(
+          color: isLate ? Colors.orange.shade200 : Colors.blue.shade200,
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            Icons.schedule,
+            size: 16,
+            color: isLate ? Colors.orange : Colors.blue,
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              'Next: ${nextStop.stopName}',
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          Text(
+            eta.inMinutes > 0 ? '${eta.inMinutes} min' : 'Arriving',
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+              color: isLate ? Colors.orange : Colors.blue,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -1197,26 +1445,169 @@ class _RouteDetailsScreenState extends State<RouteDetailsScreen> {
   
   /// Show bus details dialog
   void _showBusDetails(LiveBusData busData) {
+    // Calculate time since last update
+    final timeDiff = DateTime.now().difference(busData.lastUpdate);
+    final minutesAgo = timeDiff.inMinutes;
+    
+    // Calculate ETA to next stop if available
+    String etaText = 'Calculating...';
+    if (_stopTimings.isNotEmpty) {
+      final nextStop = _stopTimings.firstWhere(
+        (stop) => !stop.isPassed,
+        orElse: () => _stopTimings.last,
+      );
+      final eta = nextStop.estimatedArrival.difference(DateTime.now());
+      if (eta.inMinutes > 0) {
+        etaText = '${eta.inMinutes} min to ${nextStop.stopName}';
+      } else {
+        etaText = 'Arriving at ${nextStop.stopName}';
+      }
+    }
+    
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Bus ${busData.busId}'),
+        title: Row(
+          children: [
+            Icon(
+              Icons.directions_bus,
+              color: busData.isOnline ? Colors.green : Colors.grey,
+              size: 24,
+            ),
+            const SizedBox(width: 8),
+            Text('Bus ${busData.busId}'),
+            const Spacer(),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: busData.isOnline ? Colors.green : Colors.grey,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                busData.isOnline ? 'LIVE' : 'OFFLINE',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Speed: ${busData.speed.toStringAsFixed(1)} km/h'),
-            Text('Direction: ${busData.direction}'),
-            Text('Passengers: ${busData.passengerCount}'),
-            Text('Battery: ${busData.batteryLevel.toStringAsFixed(1)}%'),
-            Text('Last Update: ${busData.lastUpdate.hour}:${busData.lastUpdate.minute.toString().padLeft(2, '0')}'),
-            Text('Status: ${busData.isOnline ? "Online" : "Offline"}'),
+            // Location & Speed Info
+            _buildDetailRow(
+              Icons.speed,
+              'Speed',
+              '${busData.speed.toStringAsFixed(1)} km/h',
+              _getSpeedColor(busData.speed),
+            ),
+            _buildDetailRow(
+              Icons.navigation,
+              'Direction',
+              busData.direction.toUpperCase(),
+              Colors.blue,
+            ),
+            _buildDetailRow(
+              Icons.people,
+              'Passengers',
+              '${busData.passengerCount}',
+              Colors.orange,
+            ),
+            
+            // Time & Status Info
+            const Divider(),
+            _buildDetailRow(
+              Icons.update,
+              'Last Update',
+              minutesAgo == 0 
+                  ? 'Just now' 
+                  : minutesAgo == 1 
+                      ? '1 minute ago'
+                      : '$minutesAgo minutes ago',
+              minutesAgo < 2 ? Colors.green : Colors.orange,
+            ),
+            _buildDetailRow(
+              Icons.schedule,
+              'ETA',
+              etaText,
+              Colors.blue,
+            ),
+            
+            // Battery & Progress
+            const Divider(),
+            _buildDetailRow(
+              Icons.battery_std,
+              'Battery',
+              '${busData.batteryLevel.toStringAsFixed(0)}%',
+              busData.batteryLevel > 20 ? Colors.green : Colors.red,
+            ),
+            
+            // Route Progress
+            if (_routeProgress != null) ...[
+              _buildDetailRow(
+                Icons.route,
+                'Progress',
+                _routeProgress!.progressText,
+                Colors.purple,
+              ),
+              _buildDetailRow(
+                Icons.timer,
+                'Remaining',
+                _routeProgress!.etaText,
+                Colors.indigo,
+              ),
+            ],
           ],
         ),
         actions: [
+          TextButton.icon(
+            icon: const Icon(Icons.my_location),
+            label: const Text('Track on Map'),
+            onPressed: () {
+              Navigator.pop(context);
+              _mapController.move(busData.currentLocation, 16.0);
+            },
+          ),
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
+  
+  /// Build a detail row with icon, label and value
+  Widget _buildDetailRow(IconData icon, String label, String value, Color color) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Icon(icon, size: 18, color: color),
+          const SizedBox(width: 12),
+          Expanded(
+            flex: 2,
+            child: Text(
+              label,
+              style: const TextStyle(
+                fontWeight: FontWeight.w500,
+                color: Colors.grey,
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 3,
+            child: Text(
+              value,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
+            ),
           ),
         ],
       ),
@@ -1232,40 +1623,119 @@ class _RouteDetailsScreenState extends State<RouteDetailsScreen> {
     });
     
     try {
-      await _trackingService.startTracking(widget.route.id, 'bus_raipur_001');
+      // Use RJ-004 bus specifically for Route 004 (Railway Station to Magneto Mall)
+      String busId = 'RJ-004';
       
-      // Listen to live data streams
-      _trackingService.busDataStream?.listen((busData) {
-        setState(() {
-          _currentBusData = busData;
-          _createMapMarkers(); // Update markers with bus position
+      // Check if this is Route 004
+      if (widget.route.id == 'route_raipur_004' || 
+          widget.route.routeName.contains('Railway Station') ||
+          widget.route.routeName.contains('Magneto Mall')) {
+        
+        print('🚌 Starting live tracking for Route 004 bus: $busId');
+        await _trackingService.startTracking(widget.route.id, busId);
+        
+        // Listen to live data streams
+        _trackingService.busDataStream?.listen((busData) {
+          if (mounted) {
+            setState(() {
+              _currentBusData = busData;
+              _createMapMarkers(); // Update markers with bus position
+            });
+            print('📍 Bus location updated: ${busData.currentLocation}');
+          }
         });
-      });
-      
-      _trackingService.stopTimingsStream?.listen((timings) {
-        setState(() {
-          _stopTimings = timings;
-          _createMapMarkers(); // Update markers with timing info
+        
+        _trackingService.stopTimingsStream?.listen((timings) {
+          if (mounted) {
+            setState(() {
+              _stopTimings = timings;
+              _createMapMarkers(); // Update markers with timing info
+            });
+            print('⏰ Stop timings updated: ${timings.length} stops');
+          }
         });
-      });
-      
-      _trackingService.progressStream?.listen((progress) {
-        setState(() {
-          _routeProgress = progress;
+        
+        _trackingService.progressStream?.listen((progress) {
+          if (mounted) {
+            setState(() {
+              _routeProgress = progress;
+            });
+            print('📊 Route progress: ${progress.progressText}');
+          }
         });
-      });
-      
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Live tracking started'),
-          backgroundColor: Colors.green,
-        ),
-      );
+        
+        // Also fetch Route 004 live buses from backend
+        _fetchRoute004LiveBuses();
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('🚌 Live tracking started for $busId'),
+            backgroundColor: Colors.green,
+            action: SnackBarAction(
+              label: 'View',
+              textColor: Colors.white,
+              onPressed: () {
+                // Focus on bus location if available
+                if (_currentBusData != null) {
+                  _mapController.move(_currentBusData!.currentLocation, 15.0);
+                }
+              },
+            ),
+          ),
+        );
+      } else {
+        // For other routes, use generic tracking
+        await _trackingService.startTracking(widget.route.id, 'bus_generic_001');
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Live tracking started'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
     } catch (e) {
-      print('Error starting live tracking: $e');
+      print('❌ Error starting live tracking: $e');
       setState(() {
         _isTrackingActive = false;
       });
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to start tracking: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+  
+  /// Fetch Route 004 live buses from backend
+  Future<void> _fetchRoute004LiveBuses() async {
+    try {
+      final liveBuses = await LiveTrackingService.getRoute004LiveBuses();
+      
+      if (liveBuses.isNotEmpty && mounted) {
+        print('📍 Found ${liveBuses.length} live buses on Route 004');
+        
+        // Use the first available bus data
+        setState(() {
+          _currentBusData = liveBuses.first;
+          _createMapMarkers();
+        });
+        
+        // Show notification about live buses
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('📍 Found ${liveBuses.length} live buses on route'),
+            backgroundColor: Colors.blue,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      } else {
+        print('⚠️ No live buses found on Route 004');
+      }
+    } catch (e) {
+      print('❌ Error fetching Route 004 live buses: $e');
     }
   }
   

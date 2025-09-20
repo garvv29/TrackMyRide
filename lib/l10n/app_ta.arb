@@ -46,5 +46,22 @@
   "frequency": "அதிர்வெண்",
   "busNumber": "பஸ் எண்",
   "departure": "புறப்பாடு",
-  "arrival": "வருகை"
+  "arrival": "வருகை",
+  "appearance": "தோற்றம்",
+  "busAlerts": "பஸ் எச்சரிக்கைகள்",
+  "busAlertsDesc": "சேவை புதுப்பிப்புகள் மற்றும் தாமதங்கள் பற்றி அறிந்து கொள்ளுங்கள்",
+  "dataStorage": "தரவு மற்றும் சேமிப்பு",
+  "clearCache": "தற்காலிக சேமிப்பை அழிக்கவும்",
+  "freeUpStorage": "சேமிப்பு இடத்தை விடுவிக்கவும்",
+  "locationAccess": "இட அணுகல்",
+  "locationAccessDesc": "சிறந்த சேவைகளுக்காக உங்கள் இடத்தை அணுக பயன்பாட்டை அனுமதிக்கவும்",
+  "appVersion": "பயன்பாட்டு பதிப்பு",
+  "selectLanguageDialog": "மொழியைத் தேர்ந்தெடுக்கவும்",
+  "submitComplaint": "புகாரை சமர்ப்பிக்கவும்",
+  "pleaseEnterName": "தயவுசெய்து உங்கள் பெயரை உள்ளிடவும்",
+  "pleaseEnterMobile": "தயவுசெய்து மொபைல் எண்ணை உள்ளிடவும்",
+  "pleaseEnterBusNumber": "தயவுசெய்து பஸ் எண்ணை உள்ளிடவும்",
+  "pleaseEnterSubject": "தயவுசெய்து விषயத்தை உள்ளிடவும்",
+  "pleaseProvideDescription": "தயவுசெய்து விளக்கம் அளிக்கவும்",
+  "descriptionMinLength": "விளக்கம் குறைந்தது 10 எழுத்துகள் நீளமாக இருக்க வேண்டும்"
 }

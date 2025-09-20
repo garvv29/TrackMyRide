@@ -135,11 +135,6 @@ class RoutingService {
     return (x + y) * (180 / 3.14159); // Simplified bearing calculation
   }
   
-  /// Filter route points to reduce density while maintaining shape (legacy method)
-  static List<LatLng> _filterRoutePoints(List<LatLng> points) {
-    return _enhancedFilterRoutePoints(points); // Use enhanced version
-  }
-  
   /// Get route points between multiple waypoints
   static Future<List<LatLng>> getMultiWaypointRoute(List<LatLng> waypoints) async {
     if (waypoints.length < 2) return waypoints;

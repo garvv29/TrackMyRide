@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import '../services/api_config.dart';
+import '../l10n/app_localizations.dart';
 
 class ComplaintScreen extends StatefulWidget {
   const ComplaintScreen({super.key});
@@ -11,6 +12,8 @@ class ComplaintScreen extends StatefulWidget {
 
 class _ComplaintScreenState extends State<ComplaintScreen> {
   final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
+  final _mobileController = TextEditingController();
   final _busNumberController = TextEditingController();
   final _subjectController = TextEditingController();
   final _descriptionController = TextEditingController();
@@ -29,6 +32,8 @@ class _ComplaintScreenState extends State<ComplaintScreen> {
 
   @override
   void dispose() {
+    _nameController.dispose();
+    _mobileController.dispose();
     _busNumberController.dispose();
     _subjectController.dispose();
     _descriptionController.dispose();
@@ -50,7 +55,7 @@ class _ComplaintScreenState extends State<ComplaintScreen> {
                 width: double.infinity,
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF2D3748).withOpacity(0.1),
+                  color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Column(
@@ -60,25 +65,25 @@ class _ComplaintScreenState extends State<ComplaintScreen> {
                       children: [
                         Icon(
                           Icons.report_problem,
-                          color: const Color(0xFF2D3748),
+                          color: Theme.of(context).colorScheme.primary,
                           size: 20,
                         ),
                         const SizedBox(width: 8),
-                        const Text(
-                          'Submit a Complaint',
+                        Text(
+                          AppLocalizations.of(context)?.submitComplaintTitle ?? 'Submit a Complaint',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF2D3748),
+                            color: Theme.of(context).colorScheme.primary,
                           ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 4),
-                    const Text(
-                      'Help us improve our services by reporting issues',
+                    Text(
+                      AppLocalizations.of(context)?.helpImproveServices ?? 'Help us improve our services by reporting issues',
                       style: TextStyle(
-                        color: Color(0xFF718096),
+                        color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.7),
                         fontSize: 12,
                       ),
                     ),
@@ -90,10 +95,10 @@ class _ComplaintScreenState extends State<ComplaintScreen> {
               // Complaint Form
               Container(
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: Theme.of(context).cardColor,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: const Color(0xFFE2E8F0),
+                    color: Theme.of(context).dividerColor,
                     width: 1,
                   ),
                 ),
@@ -103,12 +108,12 @@ class _ComplaintScreenState extends State<ComplaintScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Category Selection
-                      const Text(
-                        'Category',
+                      Text(
+                        AppLocalizations.of(context)?.category ?? 'Category',
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFF2D3748),
+                          color: Theme.of(context).textTheme.bodyLarge?.color,
                         ),
                       ),
                       const SizedBox(height: 6),
@@ -140,23 +145,105 @@ class _ComplaintScreenState extends State<ComplaintScreen> {
                       ),
                       const SizedBox(height: 16),
 
-                      // Bus Number
-                      const Text(
-                        'Bus Number (Optional)',
+                      // Name Field
+                      Text(
+                        AppLocalizations.of(context)?.yourName ?? 'Your Name',
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFF2D3748),
+                          color: Theme.of(context).textTheme.bodyLarge?.color,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      TextFormField(
+                        controller: _nameController,
+                        decoration: InputDecoration(
+                          hintText: AppLocalizations.of(context)?.enterFullName ?? 'Enter your full name',
+                          hintStyle: TextStyle(
+                            fontSize: 14,
+                            color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.6),
+                          ),
+                          prefixIcon: const Icon(
+                            Icons.person,
+                            size: 18,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter your name';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Mobile Number Field
+                      Text(
+                        AppLocalizations.of(context)?.mobileNumber ?? 'Mobile Number',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Theme.of(context).textTheme.bodyLarge?.color,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      TextFormField(
+                        controller: _mobileController,
+                        keyboardType: TextInputType.phone,
+                        decoration: InputDecoration(
+                          hintText: AppLocalizations.of(context)?.enter10DigitMobile ?? 'Enter 10-digit mobile number',
+                          hintStyle: TextStyle(
+                            fontSize: 14,
+                            color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.6),
+                          ),
+                          prefixIcon: const Icon(
+                            Icons.phone,
+                            size: 18,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter your mobile number';
+                          }
+                          if (value.length != 10 || !RegExp(r'^[0-9]+$').hasMatch(value)) {
+                            return 'Please enter a valid 10-digit mobile number';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Bus Number
+                      Text(
+                        AppLocalizations.of(context)?.busNumber ?? 'Bus Number',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Theme.of(context).textTheme.bodyLarge?.color,
                         ),
                       ),
                       const SizedBox(height: 6),
                       TextFormField(
                         controller: _busNumberController,
                         decoration: InputDecoration(
-                          hintText: 'e.g., 101, 205A',
-                          hintStyle: const TextStyle(
+                          hintText: AppLocalizations.of(context)?.busNumberExample ?? 'e.g., 101, 205A',
+                          hintStyle: TextStyle(
                             fontSize: 14,
-                            color: Color(0xFF718096),
+                            color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.6),
                           ),
                           prefixIcon: const Icon(
                             Icons.directions_bus,
@@ -170,26 +257,32 @@ class _ComplaintScreenState extends State<ComplaintScreen> {
                             vertical: 8,
                           ),
                         ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter the bus number';
+                          }
+                          return null;
+                        },
                       ),
                       const SizedBox(height: 16),
 
                       // Subject
-                      const Text(
-                        'Subject',
+                      Text(
+                        AppLocalizations.of(context)?.subject ?? 'Subject',
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFF2D3748),
+                          color: Theme.of(context).textTheme.bodyLarge?.color,
                         ),
                       ),
                       const SizedBox(height: 6),
                       TextFormField(
                         controller: _subjectController,
                         decoration: InputDecoration(
-                          hintText: 'Brief description of the issue',
-                          hintStyle: const TextStyle(
+                          hintText: AppLocalizations.of(context)?.briefDescription ?? 'Brief description of the issue',
+                          hintStyle: TextStyle(
                             fontSize: 14,
-                            color: Color(0xFF718096),
+                            color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.6),
                           ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
@@ -209,12 +302,12 @@ class _ComplaintScreenState extends State<ComplaintScreen> {
                       const SizedBox(height: 16),
 
                       // Description
-                      const Text(
-                        'Description',
+                      Text(
+                        AppLocalizations.of(context)?.description ?? 'Description',
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFF2D3748),
+                          color: Theme.of(context).textTheme.bodyLarge?.color,
                         ),
                       ),
                       const SizedBox(height: 6),
@@ -222,10 +315,10 @@ class _ComplaintScreenState extends State<ComplaintScreen> {
                         controller: _descriptionController,
                         maxLines: 4,
                         decoration: InputDecoration(
-                          hintText: 'Provide detailed information about the issue...',
-                          hintStyle: const TextStyle(
+                          hintText: AppLocalizations.of(context)?.provideDetailedInfo ?? 'Provide detailed information about the issue...',
+                          hintStyle: TextStyle(
                             fontSize: 14,
-                            color: Color(0xFF718096),
+                            color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.6),
                           ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
@@ -253,7 +346,7 @@ class _ComplaintScreenState extends State<ComplaintScreen> {
                         child: ElevatedButton(
                           onPressed: _isSubmitting ? null : _submitComplaint,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF2D3748),
+                            backgroundColor: Theme.of(context).colorScheme.primary,
                             padding: const EdgeInsets.symmetric(vertical: 12),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
@@ -268,9 +361,9 @@ class _ComplaintScreenState extends State<ComplaintScreen> {
                                     strokeWidth: 2,
                                   ),
                                 )
-                              : const Text(
-                                  'Submit Complaint',
-                                  style: TextStyle(
+                              : Text(
+                                  AppLocalizations.of(context)?.submitComplaint ?? 'Submit Complaint',
+                                  style: const TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w600,
                                     color: Colors.white,

@@ -46,5 +46,22 @@
   "frequency": "ఫ్రీక్వెన్సీ",
   "busNumber": "బస్ నంబర్",
   "departure": "బయలుదేరడం",
-  "arrival": "రాక"
+  "arrival": "రాక",
+  "appearance": "రూపం",
+  "busAlerts": "బస్ అలర్ట్‌లు",
+  "busAlertsDesc": "సేవా అప్‌డేట్‌లు మరియు ఆలస్యాల గురించి తెలుసుకోండి",
+  "dataStorage": "డేటా మరియు స్టోరేజ్",
+  "clearCache": "కాష్ క్లియర్ చేయండి",
+  "freeUpStorage": "స్టోరేజ్ స్థలాన్ని ఖాళీ చేయండి",
+  "locationAccess": "లొకేషన్ యాక్సెస్",
+  "locationAccessDesc": "మెరుగైన సేవల కోసం మీ లొకేషన్‌ను యాక్సెస్ చేయడానికి యాప్‌ను అనుమతించండి",
+  "appVersion": "యాప్ వెర్షన్",
+  "selectLanguageDialog": "భాషను ఎంచుకోండి",
+  "submitComplaint": "ఫిర్యాదు సమర్పించండి",
+  "pleaseEnterName": "దయచేసి మీ పేరును నమోదు చేయండి",
+  "pleaseEnterMobile": "దయచేసి మొబైల్ నంబర్ నమోదు చేయండి",
+  "pleaseEnterBusNumber": "దయచేసి బస్ నంబర్ నమోదు చేయండి",
+  "pleaseEnterSubject": "దయచేసి విషయం నమోదు చేయండి",
+  "pleaseProvideDescription": "దయచేసి వివరణ అందించండి",
+  "descriptionMinLength": "వివరణ కనీసం 10 అక్షరాలు పొడవుగా ఉండాలి"
 }

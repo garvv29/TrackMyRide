@@ -42,6 +42,7 @@ class MyApp extends StatelessWidget {
               Locale('mr'), // Marathi
               Locale('ta'), // Tamil
               Locale('te'), // Telugu
+              Locale('pa'), // Punjabi
             ],
             initialRoute: '/',
             routes: {

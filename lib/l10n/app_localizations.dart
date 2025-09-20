@@ -288,6 +288,24 @@ abstract class AppLocalizations {
   /// **'Favorites'**
   String get favorites;
 
+  /// No description provided for @saved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get saved;
+
+  /// No description provided for @savedRoutes.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved Routes'**
+  String get savedRoutes;
+
+  /// No description provided for @savedBuses.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved Buses'**
+  String get savedBuses;
+
   /// No description provided for @aboutUs.
   ///
   /// In en, this message translates to:
@@ -395,6 +413,582 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Arrival'**
   String get arrival;
+
+  /// No description provided for @trackMyRide.
+  ///
+  /// In en, this message translates to:
+  /// **'Track My Ride'**
+  String get trackMyRide;
+
+  /// No description provided for @choosePreferredLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your preferred language'**
+  String get choosePreferredLanguage;
+
+  /// No description provided for @chooseYourStyle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose Your Style'**
+  String get chooseYourStyle;
+
+  /// No description provided for @selectAppearance.
+  ///
+  /// In en, this message translates to:
+  /// **'Select the appearance that suits you best'**
+  String get selectAppearance;
+
+  /// No description provided for @cleanBrightInterface.
+  ///
+  /// In en, this message translates to:
+  /// **'Clean and bright interface'**
+  String get cleanBrightInterface;
+
+  /// No description provided for @easyOnEyes.
+  ///
+  /// In en, this message translates to:
+  /// **'Easy on your eyes'**
+  String get easyOnEyes;
+
+  /// No description provided for @skipForNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip for now'**
+  String get skipForNow;
+
+  /// No description provided for @searchBuses.
+  ///
+  /// In en, this message translates to:
+  /// **'Search Buses'**
+  String get searchBuses;
+
+  /// No description provided for @report.
+  ///
+  /// In en, this message translates to:
+  /// **'Report'**
+  String get report;
+
+  /// No description provided for @trackMyBus.
+  ///
+  /// In en, this message translates to:
+  /// **'Track My Bus'**
+  String get trackMyBus;
+
+  /// No description provided for @limitedConnectivity.
+  ///
+  /// In en, this message translates to:
+  /// **'Limited connectivity - Some features may not work'**
+  String get limitedConnectivity;
+
+  /// No description provided for @findPerfectRoute.
+  ///
+  /// In en, this message translates to:
+  /// **'Find the perfect route for your journey'**
+  String get findPerfectRoute;
+
+  /// No description provided for @planYourJourney.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan Your Journey'**
+  String get planYourJourney;
+
+  /// No description provided for @chooseDepartureLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose departure location'**
+  String get chooseDepartureLocation;
+
+  /// No description provided for @chooseDestinationLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose destination location'**
+  String get chooseDestinationLocation;
+
+  /// No description provided for @swapLocations.
+  ///
+  /// In en, this message translates to:
+  /// **'Swap locations'**
+  String get swapLocations;
+
+  /// No description provided for @searchRoutes.
+  ///
+  /// In en, this message translates to:
+  /// **'Search Routes'**
+  String get searchRoutes;
+
+  /// No description provided for @quickActions.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick Actions'**
+  String get quickActions;
+
+  /// No description provided for @recentRoutesSearches.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent Routes'**
+  String get recentRoutesSearches;
+
+  /// No description provided for @nearbyStops.
+  ///
+  /// In en, this message translates to:
+  /// **'Nearby Stops'**
+  String get nearbyStops;
+
+  /// No description provided for @liveTracking.
+  ///
+  /// In en, this message translates to:
+  /// **'Live Tracking'**
+  String get liveTracking;
+
+  /// No description provided for @pleaseEnterBothLocations.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter both departure and destination'**
+  String get pleaseEnterBothLocations;
+
+  /// No description provided for @failedToSearchRoutes.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to search routes'**
+  String get failedToSearchRoutes;
+
+  /// No description provided for @searchByRoute.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by Route'**
+  String get searchByRoute;
+
+  /// No description provided for @searchByNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by Number'**
+  String get searchByNumber;
+
+  /// No description provided for @enterBusStopOrArea.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter bus stop or area name'**
+  String get enterBusStopOrArea;
+
+  /// No description provided for @enterBusNumberHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter bus number'**
+  String get enterBusNumberHint;
+
+  /// No description provided for @routeSearches.
+  ///
+  /// In en, this message translates to:
+  /// **'Route Searches'**
+  String get routeSearches;
+
+  /// No description provided for @numberSearches.
+  ///
+  /// In en, this message translates to:
+  /// **'Number Searches'**
+  String get numberSearches;
+
+  /// No description provided for @recentRouteSearches.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent Route Searches'**
+  String get recentRouteSearches;
+
+  /// No description provided for @recentBusSearches.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent Bus Searches'**
+  String get recentBusSearches;
+
+  /// No description provided for @clearAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear All'**
+  String get clearAll;
+
+  /// No description provided for @noRecentSearches.
+  ///
+  /// In en, this message translates to:
+  /// **'No recent searches'**
+  String get noRecentSearches;
+
+  /// No description provided for @busDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Bus'**
+  String get busDetails;
+
+  /// No description provided for @every.
+  ///
+  /// In en, this message translates to:
+  /// **'Every'**
+  String get every;
+
+  /// No description provided for @majorStops.
+  ///
+  /// In en, this message translates to:
+  /// **'Major Stops'**
+  String get majorStops;
+
+  /// No description provided for @viewAllStops.
+  ///
+  /// In en, this message translates to:
+  /// **'View All Stops'**
+  String get viewAllStops;
+
+  /// No description provided for @viewAll.
+  ///
+  /// In en, this message translates to:
+  /// **'View all'**
+  String get viewAll;
+
+  /// No description provided for @alertsNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Stay updated with bus alerts and notifications'**
+  String get alertsNotifications;
+
+  /// No description provided for @alert.
+  ///
+  /// In en, this message translates to:
+  /// **'Alert'**
+  String get alert;
+
+  /// No description provided for @noAlertsAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No alerts available'**
+  String get noAlertsAvailable;
+
+  /// No description provided for @enableNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable Notifications'**
+  String get enableNotifications;
+
+  /// No description provided for @stayUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Stay updated with bus alerts and notifications'**
+  String get stayUpdated;
+
+  /// No description provided for @noSavedRoutes.
+  ///
+  /// In en, this message translates to:
+  /// **'No saved routes yet'**
+  String get noSavedRoutes;
+
+  /// No description provided for @noSavedBuses.
+  ///
+  /// In en, this message translates to:
+  /// **'No saved buses yet'**
+  String get noSavedBuses;
+
+  /// No description provided for @saveRoutesMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Your saved routes will appear here'**
+  String get saveRoutesMessage;
+
+  /// No description provided for @saveBusesMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Your saved buses will appear here'**
+  String get saveBusesMessage;
+
+  /// No description provided for @noRecentRoutes.
+  ///
+  /// In en, this message translates to:
+  /// **'No recent routes'**
+  String get noRecentRoutes;
+
+  /// No description provided for @routeSearchesMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Your recent route searches will appear here'**
+  String get routeSearchesMessage;
+
+  /// No description provided for @deleteItem.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get deleteItem;
+
+  /// No description provided for @name.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get name;
+
+  /// No description provided for @mobileNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Mobile Number'**
+  String get mobileNumber;
+
+  /// No description provided for @enterName.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your name'**
+  String get enterName;
+
+  /// No description provided for @enterMobileNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter mobile number'**
+  String get enterMobileNumber;
+
+  /// No description provided for @selectBusNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Bus Number'**
+  String get selectBusNumber;
+
+  /// No description provided for @complaintSubject.
+  ///
+  /// In en, this message translates to:
+  /// **'Complaint Subject'**
+  String get complaintSubject;
+
+  /// No description provided for @complaintDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Complaint Description'**
+  String get complaintDescription;
+
+  /// No description provided for @submitComplaint.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit Complaint'**
+  String get submitComplaint;
+
+  /// No description provided for @pleaseEnterName.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your name'**
+  String get pleaseEnterName;
+
+  /// No description provided for @pleaseEnterValidMobile.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid 10-digit mobile number'**
+  String get pleaseEnterValidMobile;
+
+  /// No description provided for @pleaseSelectBusNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select a bus number'**
+  String get pleaseSelectBusNumber;
+
+  /// No description provided for @pleaseEnterSubject.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a subject'**
+  String get pleaseEnterSubject;
+
+  /// No description provided for @pleaseEnterDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter complaint description'**
+  String get pleaseEnterDescription;
+
+  /// No description provided for @complaintSubmitted.
+  ///
+  /// In en, this message translates to:
+  /// **'Complaint submitted successfully'**
+  String get complaintSubmitted;
+
+  /// No description provided for @failedToSubmitComplaint.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to submit complaint'**
+  String get failedToSubmitComplaint;
+
+  /// No description provided for @submitComplaintTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit a Complaint'**
+  String get submitComplaintTitle;
+
+  /// No description provided for @helpImproveServices.
+  ///
+  /// In en, this message translates to:
+  /// **'Help us improve our services by reporting issues'**
+  String get helpImproveServices;
+
+  /// No description provided for @category.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get category;
+
+  /// No description provided for @service.
+  ///
+  /// In en, this message translates to:
+  /// **'Service'**
+  String get service;
+
+  /// No description provided for @cleanliness.
+  ///
+  /// In en, this message translates to:
+  /// **'Cleanliness'**
+  String get cleanliness;
+
+  /// No description provided for @staffBehavior.
+  ///
+  /// In en, this message translates to:
+  /// **'Staff Behavior'**
+  String get staffBehavior;
+
+  /// No description provided for @safety.
+  ///
+  /// In en, this message translates to:
+  /// **'Safety'**
+  String get safety;
+
+  /// No description provided for @routeIssues.
+  ///
+  /// In en, this message translates to:
+  /// **'Route Issues'**
+  String get routeIssues;
+
+  /// No description provided for @fareIssues.
+  ///
+  /// In en, this message translates to:
+  /// **'Fare Issues'**
+  String get fareIssues;
+
+  /// No description provided for @other.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get other;
+
+  /// No description provided for @yourName.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Name'**
+  String get yourName;
+
+  /// No description provided for @enterFullName.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your full name'**
+  String get enterFullName;
+
+  /// No description provided for @enter10DigitMobile.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter 10-digit mobile number'**
+  String get enter10DigitMobile;
+
+  /// No description provided for @busNumberExample.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g., 101, 205A'**
+  String get busNumberExample;
+
+  /// No description provided for @pleaseEnterBusNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter the bus number'**
+  String get pleaseEnterBusNumber;
+
+  /// No description provided for @subject.
+  ///
+  /// In en, this message translates to:
+  /// **'Subject'**
+  String get subject;
+
+  /// No description provided for @briefDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Brief description of the issue'**
+  String get briefDescription;
+
+  /// No description provided for @description.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get description;
+
+  /// No description provided for @provideDetailedInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Provide detailed information about the issue...'**
+  String get provideDetailedInfo;
+
+  /// No description provided for @pleaseProvideDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Please provide a description'**
+  String get pleaseProvideDescription;
+
+  /// No description provided for @descriptionMinLength.
+  ///
+  /// In en, this message translates to:
+  /// **'Description must be at least 10 characters long'**
+  String get descriptionMinLength;
+
+  /// No description provided for @appearance.
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance'**
+  String get appearance;
+
+  /// No description provided for @busAlerts.
+  ///
+  /// In en, this message translates to:
+  /// **'Bus Alerts'**
+  String get busAlerts;
+
+  /// No description provided for @busAlertsDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Get notified about service updates and delays'**
+  String get busAlertsDesc;
+
+  /// No description provided for @dataStorage.
+  ///
+  /// In en, this message translates to:
+  /// **'Data & Storage'**
+  String get dataStorage;
+
+  /// No description provided for @clearCache.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear Cache'**
+  String get clearCache;
+
+  /// No description provided for @freeUpStorage.
+  ///
+  /// In en, this message translates to:
+  /// **'Free up storage space'**
+  String get freeUpStorage;
+
+  /// No description provided for @locationAccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Location Access'**
+  String get locationAccess;
+
+  /// No description provided for @locationAccessDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow app to access your location for better services'**
+  String get locationAccessDesc;
+
+  /// No description provided for @appVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'App Version'**
+  String get appVersion;
+
+  /// No description provided for @selectLanguageDialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Language'**
+  String get selectLanguageDialog;
 }
 
 class _AppLocalizationsDelegate

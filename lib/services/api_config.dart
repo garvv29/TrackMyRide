@@ -5,7 +5,7 @@ class ApiConfig {
   // - Web/Desktop: Use localhost:3000
   
   // Current config for Android device
-  static const String baseUrl = 'http://10.0.2.2:3000/api';
+  static const String baseUrl = 'http://192.168.29.163:3000/api';
   static const String healthUrl = 'http://192.168.29.163:3000/health';
   
   // Alternative URLs (change based on your setup):

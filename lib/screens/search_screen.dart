@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/search_history.dart';
+import '../l10n/app_localizations.dart';
 
 class SearchScreen extends StatefulWidget {
   final String? initialSearchType;
@@ -13,7 +14,8 @@ class SearchScreen extends StatefulWidget {
 class _SearchScreenState extends State<SearchScreen> {
   final _searchController = TextEditingController();
   late String _searchType;
-  List<SearchItem> _recentSearches = [];
+  List<SearchItem> _routeSearches = [];
+  List<SearchItem> _numberSearches = [];
 
   @override
   void initState() {
@@ -25,7 +27,8 @@ class _SearchScreenState extends State<SearchScreen> {
   Future<void> _loadRecentSearches() async {
     final searches = await SearchHistory.getRecentSearches();
     setState(() {
-      _recentSearches = searches;
+      _routeSearches = searches.where((s) => s.type == 'route').toList();
+      _numberSearches = searches.where((s) => s.type == 'number').toList();
     });
   }
 
@@ -38,13 +41,13 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7FAFC),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF2D3748),
-        foregroundColor: Colors.white,
-        title: const Text(
-          'Search',
-          style: TextStyle(
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+        foregroundColor: Theme.of(context).appBarTheme.foregroundColor,
+        title: Text(
+          AppLocalizations.of(context)?.search ?? 'Search',
+          style: const TextStyle(
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -58,10 +61,10 @@ class _SearchScreenState extends State<SearchScreen> {
             // Search Type Toggle
             Container(
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Theme.of(context).cardColor,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: const Color(0xFFE2E8F0),
+                  color: Theme.of(context).dividerColor,
                   width: 1,
                 ),
               ),
@@ -77,17 +80,17 @@ class _SearchScreenState extends State<SearchScreen> {
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           decoration: BoxDecoration(
                             color: _searchType == 'route'
-                                ? const Color(0xFF2D3748)
+                                ? Theme.of(context).colorScheme.primary
                                 : Colors.transparent,
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
-                            'Search by Route',
+                            AppLocalizations.of(context)?.searchByRoute ?? 'Search by Route',
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               color: _searchType == 'route'
                                   ? Colors.white
-                                  : const Color(0xFF718096),
+                                  : Theme.of(context).textTheme.bodyMedium?.color,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -103,17 +106,17 @@ class _SearchScreenState extends State<SearchScreen> {
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           decoration: BoxDecoration(
                             color: _searchType == 'number'
-                                ? const Color(0xFF2D3748)
+                                ? Theme.of(context).colorScheme.primary
                                 : Colors.transparent,
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
-                            'Search by Number',
+                            AppLocalizations.of(context)?.searchByNumber ?? 'Search by Number',
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               color: _searchType == 'number'
                                   ? Colors.white
-                                  : const Color(0xFF718096),
+                                  : Theme.of(context).textTheme.bodyMedium?.color,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -129,36 +132,36 @@ class _SearchScreenState extends State<SearchScreen> {
             // Search Bar
             Container(
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Theme.of(context).cardColor,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: const Color(0xFFE2E8F0),
+                  color: Theme.of(context).dividerColor,
                   width: 1,
                 ),
               ),
               child: TextField(
                 controller: _searchController,
-                style: const TextStyle(
-                  color: Color(0xFF2D3748),
+                style: TextStyle(
+                  color: Theme.of(context).textTheme.bodyLarge?.color,
                   fontWeight: FontWeight.w500,
                 ),
                 decoration: InputDecoration(
                   hintText: _searchType == 'route'
-                      ? 'Enter bus stop or area name'
-                      : 'Enter bus number',
-                  hintStyle: const TextStyle(
-                    color: Color(0xFF718096),
+                      ? AppLocalizations.of(context)?.enterBusStopOrArea ?? 'Enter bus stop or area name'
+                      : AppLocalizations.of(context)?.enterBusNumberHint ?? 'Enter bus number',
+                  hintStyle: TextStyle(
+                    color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.6),
                   ),
                   prefixIcon: Icon(
                     _searchType == 'route'
                         ? Icons.location_on
                         : Icons.directions_bus,
-                    color: const Color(0xFF38B2AC),
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                   suffixIcon: Container(
                     margin: const EdgeInsets.all(6),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF38B2AC),
+                      color: Theme.of(context).colorScheme.primary,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: IconButton(
@@ -181,23 +184,35 @@ class _SearchScreenState extends State<SearchScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Recent Searches',
+                Text(
+                  _searchType == 'route' 
+                      ? AppLocalizations.of(context)?.recentRouteSearches ?? 'Recent Route Searches'
+                      : AppLocalizations.of(context)?.recentBusSearches ?? 'Recent Bus Searches',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF2D3748),
+                    color: Theme.of(context).textTheme.bodyLarge?.color,
                   ),
                 ),
-                if (_recentSearches.isNotEmpty)
+                if ((_searchType == 'route' ? _routeSearches : _numberSearches).isNotEmpty)
                   TextButton(
                     onPressed: () async {
-                      await SearchHistory.clearAll();
+                      if (_searchType == 'route') {
+                        // Clear only route searches
+                        for (final search in _routeSearches) {
+                          await SearchHistory.removeSearch(search);
+                        }
+                      } else {
+                        // Clear only number searches
+                        for (final search in _numberSearches) {
+                          await SearchHistory.removeSearch(search);
+                        }
+                      }
                       await _loadRecentSearches();
                     },
-                    child: const Text(
-                      'Clear All',
-                      style: TextStyle(
+                    child: Text(
+                      AppLocalizations.of(context)?.clearAll ?? 'Clear All',
+                      style: const TextStyle(
                         color: Color(0xFF718096),
                         fontSize: 14,
                       ),
@@ -207,40 +222,42 @@ class _SearchScreenState extends State<SearchScreen> {
             ),
             const SizedBox(height: 12),
             Expanded(
-              child: _recentSearches.isEmpty
-                  ? const Center(
+              child: (_searchType == 'route' ? _routeSearches : _numberSearches).isEmpty
+                  ? Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(
                             Icons.search_outlined,
                             size: 64,
-                            color: Color(0xFFE2E8F0),
+                            color: Theme.of(context).dividerColor,
                           ),
-                          SizedBox(height: 16),
+                          const SizedBox(height: 16),
                           Text(
-                            'No recent searches',
+                            _searchType == 'route' 
+                                ? 'No recent route searches'
+                                : 'No recent bus searches',
                             style: TextStyle(
                               fontSize: 16,
-                              color: Color(0xFF718096),
+                              color: Theme.of(context).textTheme.bodyMedium?.color,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
-                          SizedBox(height: 8),
+                          const SizedBox(height: 8),
                           Text(
                             'Start searching to see your history here',
                             style: TextStyle(
                               fontSize: 14,
-                              color: Color(0xFFA0AEC0),
+                              color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.6),
                             ),
                           ),
                         ],
                       ),
                     )
                   : ListView.builder(
-                      itemCount: _recentSearches.length,
+                      itemCount: (_searchType == 'route' ? _routeSearches : _numberSearches).length,
                       itemBuilder: (context, index) {
-                        final searchItem = _recentSearches[index];
+                        final searchItem = (_searchType == 'route' ? _routeSearches : _numberSearches)[index];
                         return _buildRecentSearchItem(searchItem);
                       },
                     ),
@@ -292,10 +309,10 @@ class _SearchScreenState extends State<SearchScreen> {
       child: Container(
         margin: const EdgeInsets.only(bottom: 8),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: const Color(0xFFE2E8F0),
+            color: Theme.of(context).dividerColor,
             width: 1,
           ),
         ),

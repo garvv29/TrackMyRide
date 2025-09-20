@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../screens/settings_screen.dart';
+import '../screens/saved_screen.dart';
+import '../l10n/app_localizations.dart';
 
 class CustomDrawer extends StatelessWidget {
   const CustomDrawer({super.key});
@@ -13,8 +15,8 @@ class CustomDrawer extends StatelessWidget {
           Container(
             width: double.infinity,
             padding: const EdgeInsets.fromLTRB(20, 50, 20, 20),
-            decoration: const BoxDecoration(
-              color: Color(0xFF2D3748),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.primary,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -26,10 +28,10 @@ class CustomDrawer extends StatelessWidget {
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(25),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.directions_bus,
                     size: 24,
-                    color: Color(0xFF2D3748),
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -61,39 +63,25 @@ class CustomDrawer extends StatelessWidget {
                 const SizedBox(height: 16),
                 _buildDrawerItem(
                   context,
-                  icon: Icons.favorite,
-                  title: 'Favorites',
+                  icon: Icons.bookmark,
+                  title: AppLocalizations.of(context)?.saved ?? 'Saved',
                   onTap: () {
                     Navigator.pop(context);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Opening your favorite routes...'),
-                        behavior: SnackBarBehavior.floating,
-                      ),
-                    );
-                  },
-                ),
-                _buildDrawerItem(
-                  context,
-                  icon: Icons.history,
-                  title: 'Recent Searches',
-                  onTap: () {
-                    Navigator.pop(context);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Opening recent searches...'),
-                        behavior: SnackBarBehavior.floating,
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const SavedScreen(),
                       ),
                     );
                   },
                 ),
                 const SizedBox(height: 8),
-                const Divider(color: Color(0xFFE2E8F0)),
+                Divider(color: Theme.of(context).dividerColor),
                 const SizedBox(height: 8),
                 _buildDrawerItem(
                   context,
                   icon: Icons.settings,
-                  title: 'Settings',
+                  title: AppLocalizations.of(context)?.settings ?? 'Settings',
                   onTap: () {
                     Navigator.pop(context);
                     Navigator.push(
@@ -107,7 +95,7 @@ class CustomDrawer extends StatelessWidget {
                 _buildDrawerItem(
                   context,
                   icon: Icons.info_outline,
-                  title: 'About Us',
+                  title: AppLocalizations.of(context)?.aboutUs ?? 'About Us',
                   onTap: () {
                     Navigator.pop(context);
                     _showAboutDialog(context);
@@ -116,7 +104,7 @@ class CustomDrawer extends StatelessWidget {
                 _buildDrawerItem(
                   context,
                   icon: Icons.help_outline,
-                  title: 'Help & Support',
+                  title: AppLocalizations.of(context)?.helpSupport ?? 'Help & Support',
                   onTap: () {
                     Navigator.pop(context);
                     _showHelpDialog(context);
@@ -131,7 +119,7 @@ class CustomDrawer extends StatelessWidget {
             padding: const EdgeInsets.all(12),
             child: Column(
               children: [
-                const Divider(color: Color(0xFFE2E8F0)),
+                Divider(color: Theme.of(context).dividerColor),
                 const SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -139,13 +127,13 @@ class CustomDrawer extends StatelessWidget {
                     Icon(
                       Icons.info_outline,
                       size: 14,
-                      color: const Color(0xFF718096),
+                      color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.7),
                     ),
                     const SizedBox(width: 6),
-                    const Text(
+                    Text(
                       'Version 1.0.0',
                       style: TextStyle(
-                        color: Color(0xFF718096),
+                        color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.7),
                         fontSize: 11,
                       ),
                     ),
@@ -173,15 +161,15 @@ class CustomDrawer extends StatelessWidget {
       child: ListTile(
         leading: Icon(
           icon,
-          color: const Color(0xFF2D3748),
+          color: Theme.of(context).textTheme.bodyLarge?.color,
           size: 20,
         ),
         title: Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w500,
-            color: Color(0xFF2D3748),
+            color: Theme.of(context).textTheme.bodyLarge?.color,
           ),
         ),
         onTap: onTap,
@@ -200,20 +188,20 @@ class CustomDrawer extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
-        title: const Text(
+        title: Text(
           'About Track My Ride',
           style: TextStyle(
-            color: Color(0xFF2D3748),
+            color: Theme.of(context).textTheme.titleLarge?.color,
             fontWeight: FontWeight.bold,
           ),
         ),
-        content: const Text(
+        content: Text(
           'Track My Ride is your comprehensive transportation tracking application for finding the best routes across cities and between different locations. '
           'We help you plan your journey with real-time information and user-friendly features for buses, trains, and other public transport.\n\n'
           'Version: 1.0.0\n'
           'Developed with ❤️ for better public transportation',
           style: TextStyle(
-            color: Color(0xFF2D3748),
+            color: Theme.of(context).textTheme.bodyMedium?.color,
             height: 1.5,
           ),
         ),
@@ -221,7 +209,7 @@ class CustomDrawer extends StatelessWidget {
           TextButton(
             onPressed: () => Navigator.pop(context),
             style: TextButton.styleFrom(
-              foregroundColor: const Color(0xFF38B2AC),
+              foregroundColor: Theme.of(context).colorScheme.primary,
             ),
             child: const Text('OK'),
           ),
@@ -237,10 +225,10 @@ class CustomDrawer extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
-        title: const Text(
+        title: Text(
           'Help & Support',
           style: TextStyle(
-            color: Color(0xFF2D3748),
+            color: Theme.of(context).textTheme.titleLarge?.color,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -262,13 +250,13 @@ class CustomDrawer extends StatelessWidget {
             const SizedBox(height: 8),
             _buildHelpItem(Icons.schedule, 'Hours: Mon-Fri 9AM-6PM'),
             const SizedBox(height: 16),
-            const Text(
+            Text(
               'Common Issues:\n'
               '• Bus not showing? Try refreshing the search\n'
               '• Wrong route? Report it through complaints\n'
               '• App issues? Restart the application',
               style: TextStyle(
-                color: Color(0xFF718096),
+                color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.7),
                 fontSize: 13,
                 height: 1.4,
               ),
@@ -279,7 +267,7 @@ class CustomDrawer extends StatelessWidget {
           TextButton(
             onPressed: () => Navigator.pop(context),
             style: TextButton.styleFrom(
-              foregroundColor: const Color(0xFF38B2AC),
+              foregroundColor: Theme.of(context).colorScheme.primary,
             ),
             child: const Text('Close'),
           ),
@@ -289,24 +277,26 @@ class CustomDrawer extends StatelessWidget {
   }
 
   Widget _buildHelpItem(IconData icon, String text) {
-    return Row(
-      children: [
-        Icon(
-          icon,
-          size: 16,
-          color: const Color(0xFF38B2AC),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Text(
-            text,
-            style: const TextStyle(
-              color: Color(0xFF2D3748),
-              fontSize: 14,
+    return Builder(
+      builder: (context) => Row(
+        children: [
+          Icon(
+            icon,
+            size: 16,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              text,
+              style: TextStyle(
+                color: Theme.of(context).textTheme.bodyMedium?.color,
+                fontSize: 14,
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
