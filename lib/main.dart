@@ -8,7 +8,9 @@ import 'screens/splash_screen.dart';
 import 'l10n/app_localizations.dart';
 import 'services/api_service.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
   // Initialize API service
   ApiService().initialize();
   

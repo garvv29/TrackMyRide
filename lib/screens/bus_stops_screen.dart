@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/bus.dart';
-import '../services/bus_stop_service.dart' as service;
+import '../services/bus_stops_service.dart';
+import '../models/bus_stop.dart' as bus_stop_model;
 
 class BusStopsScreen extends StatefulWidget {
   final Bus bus;
@@ -15,7 +16,7 @@ class BusStopsScreen extends StatefulWidget {
 }
 
 class _BusStopsScreenState extends State<BusStopsScreen> {
-  List<service.BusStop> _stops = [];
+  List<bus_stop_model.BusStop> _stops = [];
   bool _isLoading = false;
   String? _error;
 
@@ -32,7 +33,7 @@ class _BusStopsScreenState extends State<BusStopsScreen> {
     });
 
     try {
-      final stops = await service.BusStopService.getAllBusStops();
+      final stops = await BusStopsService.getAllBusStops();
       setState(() {
         _stops = stops;
       });
@@ -151,17 +152,17 @@ class _BusStopsScreenState extends State<BusStopsScreen> {
                                               fontWeight: FontWeight.w500,
                                             ),
                                           ),
-                                          if (stop.address.isNotEmpty) ...[
+                                          if (stop.address?.isNotEmpty == true) ...[
                                             const SizedBox(height: 2),
                                             Text(
-                                              stop.address,
+                                              stop.address!,
                                               style: TextStyle(
                                                 color: Colors.grey.shade600,
                                                 fontSize: 12,
                                               ),
                                             ),
                                           ],
-                                          if (stop.stopCode.isNotEmpty) ...[
+                                          if (stop.stopCode?.isNotEmpty == true) ...[
                                             const SizedBox(height: 2),
                                             Text(
                                               'Stop Code: ${stop.stopCode}',

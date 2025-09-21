@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import '../services/search_history.dart';
+import '../services/bus_stops_service.dart';
+import '../models/bus_stop.dart';
 import '../l10n/app_localizations.dart';
+import 'bus_search_results_screen.dart';
 
 class SearchScreen extends StatefulWidget {
   final String? initialSearchType;
@@ -369,17 +372,123 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   void _performSearch() async {
-    if (_searchController.text.isNotEmpty) {
-      // Save to search history
-      await SearchHistory.addSearch(_searchController.text.trim(), _searchType);
-      
-      // Reload recent searches
-      await _loadRecentSearches();
-      
-      // TODO: Implement actual search functionality and navigation
+    if (_searchController.text.isEmpty) return;
+    
+    final query = _searchController.text.trim();
+    
+    // Save to search history
+    await SearchHistory.addSearch(query, _searchType);
+    
+    // Reload recent searches
+    await _loadRecentSearches();
+    
+    if (_searchType == 'route') {
+      // Search for bus stops/areas
+      try {
+        final busStops = await BusStopsService.getAllBusStops();
+        final filteredStops = busStops.where((stop) => 
+          stop.stopName.toLowerCase().contains(query.toLowerCase()) ||
+          stop.city.toLowerCase().contains(query.toLowerCase()) ||
+          (stop.address?.toLowerCase().contains(query.toLowerCase()) ?? false)
+        ).toList();
+        
+        if (filteredStops.isNotEmpty && mounted) {
+          // Show results in a bottom sheet or navigate to results screen
+          showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            backgroundColor: Colors.transparent,
+            builder: (context) => DraggableScrollableSheet(
+              initialChildSize: 0.7,
+              minChildSize: 0.5,
+              maxChildSize: 0.9,
+              builder: (context, scrollController) => Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).cardColor,
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                ),
+                child: Column(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        children: [
+                          Container(
+                            width: 40,
+                            height: 4,
+                            decoration: BoxDecoration(
+                              color: Colors.grey[300],
+                              borderRadius: BorderRadius.circular(2),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Search Results for "$query"',
+                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
+                          Text(
+                            '${filteredStops.length} bus stops found',
+                            style: const TextStyle(color: Colors.grey),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                      child: ListView.builder(
+                        controller: scrollController,
+                        itemCount: filteredStops.length,
+                        itemBuilder: (context, index) {
+                          final stop = filteredStops[index];
+                          return ListTile(
+                            leading: const Icon(Icons.location_on, color: Colors.blue),
+                            title: Text(stop.stopName),
+                            subtitle: Text('${stop.city}, ${stop.state}${stop.address != null ? '\n${stop.address}' : ''}'),
+                            isThreeLine: stop.address != null,
+                            onTap: () {
+                              Navigator.pop(context);
+                              // Navigate to bus search results with this stop as destination
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => BusSearchResultsScreen(
+                                    from: 'Current Location',
+                                    to: stop.stopName,
+                                    fromId: 'current',
+                                    toId: stop.id ?? 'unknown',
+                                  ),
+                                ),
+                              );
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('No bus stops found for "$query"'),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        }
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error searching: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } else {
+      // Search for bus by number - TODO: Implement bus number search
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Searching for: ${_searchController.text}'),
+          content: Text('Searching for Bus Number: $query'),
           behavior: SnackBarBehavior.floating,
         ),
       );

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'nearby_stops_screen.dart';
-import 'bus_search_results_screen.dart';
-import 'recent_routes_screen.dart';
+import './nearby_bus_stops_screen.dart';
+import './bus_search_results_screen.dart';
+import './recent_routes_screen.dart';
 import '../services/app_status_service.dart';
 import '../services/city_service.dart';
-import '../services/bus_stop_service.dart';
+import '../services/bus_stops_service.dart';
 import '../services/route_search_history.dart';
 import '../l10n/app_localizations.dart';
 
@@ -62,7 +62,14 @@ class _HomeScreenState extends State<HomeScreen> {
       print('Loading suggestions for query: $query');
       // Use search APIs instead of loading all data
       final cities = await CityService.searchCities(query);
-      final busStops = await BusStopService.searchBusStops(query);
+      final allBusStops = await BusStopsService.getAllBusStops();
+      
+      // Filter bus stops by query
+      final busStops = allBusStops.where((stop) => 
+        stop.stopName.toLowerCase().contains(query.toLowerCase()) ||
+        stop.city.toLowerCase().contains(query.toLowerCase()) ||
+        (stop.address?.toLowerCase().contains(query.toLowerCase()) ?? false)
+      ).toList();
       
       print('Cities found: ${cities.length}');
       print('Bus stops found: ${busStops.length}');
@@ -424,7 +431,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const NearbyStopsScreen(),
+                          builder: (context) => NearbyBusStopsScreen(),
                         ),
                       );
                     },

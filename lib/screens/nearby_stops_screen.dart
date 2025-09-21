@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
-import '../services/bus_stop_service.dart' as service;
+import '../services/bus_stops_service.dart';
+import '../models/bus_stop.dart';
 
 class NearbyStopsScreen extends StatefulWidget {
   const NearbyStopsScreen({super.key});
@@ -11,7 +12,7 @@ class NearbyStopsScreen extends StatefulWidget {
 
 class _NearbyStopsScreenState extends State<NearbyStopsScreen> {
   bool _isMapView = true;
-  List<service.BusStop> _nearbyStops = [];
+  List<BusStop> _nearbyStops = [];
   bool _isLoading = false;
   Position? _currentPosition;
   String? _errorMessage;
@@ -47,7 +48,7 @@ class _NearbyStopsScreenState extends State<NearbyStopsScreen> {
       ).timeout(const Duration(seconds: 15));
 
       // Load nearby stops from backend
-      final stops = await service.BusStopService.getNearbyBusStops(
+      final stops = await BusStopsService.getNearbyBusStops(
         latitude: _currentPosition!.latitude,
         longitude: _currentPosition!.longitude,
         radiusKm: 5.0,
@@ -258,7 +259,7 @@ class _NearbyStopsScreenState extends State<NearbyStopsScreen> {
     );
   }
 
-  Widget _buildStopCard(service.BusStop stop) {
+  Widget _buildStopCard(BusStop stop) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
@@ -323,7 +324,7 @@ class _NearbyStopsScreenState extends State<NearbyStopsScreen> {
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
-                    stop.stopCode, // Show stop code instead
+                    stop.stopCode ?? 'N/A', // Handle null stopCode
                     style: const TextStyle(
                       fontSize: 11,
                       color: Colors.green,
@@ -335,60 +336,33 @@ class _NearbyStopsScreenState extends State<NearbyStopsScreen> {
             ),
             const SizedBox(height: 12),
             Text(
-              stop.address,
+              stop.address ?? 'Address not available', // Handle null address
               style: const TextStyle(
                 fontSize: 13,
                 color: Color(0xFF718096),
               ),
             ),
             const SizedBox(height: 12),
-            Row(
-              children: [
-                const Text(
-                  'Amenities: ',
-                  style: TextStyle(
-                    fontSize: 12,
+            // Show distance if available
+            if (stop.distance != null)
+              Row(
+                children: [
+                  const Icon(
+                    Icons.location_on,
+                    size: 16,
                     color: Color(0xFF718096),
-                    fontWeight: FontWeight.w500,
                   ),
-                ),
-                Expanded(
-                  child: Wrap(
-                    spacing: 6,
-                    children: stop.amenities.isEmpty 
-                        ? [
-                            const Text(
-                              'None listed',
-                              style: TextStyle(
-                                fontSize: 11,
-                                color: Color(0xFF718096),
-                              ),
-                            ),
-                          ]
-                        : stop.amenities.map((amenity) {
-                            return Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 6,
-                                vertical: 2,
-                              ),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF2D3748).withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: Text(
-                                amenity,
-                                style: const TextStyle(
-                                  fontSize: 11,
-                                  color: Color(0xFF2D3748),
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            );
-                          }).toList(),
+                  const SizedBox(width: 4),
+                  Text(
+                    '${stop.distance!.toStringAsFixed(2)} km away',
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Color(0xFF718096),
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
-                ),
-              ],
-            ),
+                ],
+              ),
           ],
         ),
       ),
